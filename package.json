@@ -1,0 +1,17 @@
+{
+  "name": "codebolt",
+  "version": "1.0.0",
+  "description": "A CLI tool for version checking and folder uploads",
+  "main": "codebolt.js",
+  "bin": {
+    "codebolt": "./codebolt.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^5.3.1",
+    "axios": "^0.21.1",
+    "chalk": "4.1.2",
+    "commander": "^8.0.0"
+  }
+}
