@@ -7,7 +7,15 @@ const uploadFolder = (folderPath) => {
     const archive = archiver('zip', {
       zlib: { level: 9 }
     });
-  
+
+    // Read .gitignore file and add its contents to the archiver's ignore list
+    const gitignorePath = `${folderPath}/.gitignore`;
+    const ignoreFiles = [];
+    if (fs.existsSync(gitignorePath)) {
+        const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+        ignoreFiles.push(...gitignoreContent.split('\n').filter(line => line && !line.startsWith('#')));
+    }
+
     output.on('close', async () => {
       try {
         const response = await post('https://portal.codebolt.ai/api/upload', {
@@ -21,10 +29,13 @@ const uploadFolder = (folderPath) => {
         console.error(chalk.red('Error uploading file:'), error);
       }
     });
-  
+
     archive.on('error', (err) => { throw err; });
     archive.pipe(output);
-    archive.directory(folderPath, false);
+    archive.glob('**/*', {
+        cwd: folderPath,
+        ignore: ignoreFiles
+    });
     archive.finalize();
   };
 
