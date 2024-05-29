@@ -1,7 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios')
 const fs = require('fs');
-const usersFile = 'users.json';
+const path = require('path');
+const os = require('os');
+const usersFile = path.join(os.homedir(), '.codebolt', 'users.json');
 
 // Function to delete the users.json file
 function deleteUserFile() {
@@ -20,7 +22,7 @@ const logout = () => {
 };
 
 
-const sinIn = () => {
+const signIn = () => {
     const uuid = uuidv4();
 
     // Simulating window.open in a Node.js environment
@@ -60,6 +62,6 @@ function saveUserApiResponse(user) {
 }
 
 module.exports={
-    sinIn,
+    signIn,
     logout
 }
