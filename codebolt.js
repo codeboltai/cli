@@ -7,7 +7,7 @@ const { getVersion } = require('./actions/version');
 const { uploadFolder } = require('./actions/uploadfolder');
 const inquirer = require('inquirer');
 
-const {sinIn,logout} = require('./actions/login')
+const {singIn,logout} = require('./actions/login')
 
 // const { login } = require('./actions/login');
 const { list } = require('./actions/list');

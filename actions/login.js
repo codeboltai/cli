@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const axios = require('axios')
 const fs = require('fs');
 const usersFile = 'users.json';
+const chalk = require('chalk');
 
 // Function to delete the users.json file
 function deleteUserFile() {
@@ -20,7 +21,7 @@ const logout = () => {
 };
 
 
-const sinIn = () => {
+const singIn = () => {
     const uuid = uuidv4();
 
     // Simulating window.open in a Node.js environment
