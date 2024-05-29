@@ -1,9 +1,23 @@
 const chalk = require('chalk');
 const axios = require('axios');
 
+const { checkUserAuth, getUserData } = require('./userData');
+
 const list = async () => {
+    if (!checkUserAuth()) {
+        console.log(chalk.red('User not authenticated. Please login first.'));
+        return;
+    }
+
+    const userData = getUserData();
+    const token = userData.token;
+
     try {
-        const response = await axios.get('https://api.codebolt.ai/api/list');
+        const response = await axios.get('https://api.codebolt.ai/api/list', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         const agents = response.data.agents;
 
         if (agents.length === 0) {
