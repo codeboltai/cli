@@ -25,7 +25,8 @@ const singIn = () => {
     const uuid = uuidv4();
 
     // Simulating window.open in a Node.js environment
-    console.log(`Please open this URL to login: http://portal.codebolt.ai/performSignIn?uid=${uuid}&loginflow=app`);
+    
+    console.log(chalk.blue(`Please open this URL to login: http://portal.codebolt.ai/performSignIn?uid=${uuid}&loginflow=app`));
     const intervalId = setInterval(async () => {
       try {
         const response = await axios.get(
@@ -34,7 +35,7 @@ const singIn = () => {
         // console.log(response.data)
         if (response.status === 200) {
           clearInterval(intervalId);
-          console.log('Login successful!');
+          console.log(chalk.green('Login successful!'));
           saveUserApiResponse(response.data); 
         }
        // Assuming there is a function saveUserApiResponse to handle saving the response
