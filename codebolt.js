@@ -22,7 +22,7 @@ program
 program
     .command('login')
     .description('Log in to the application')
-    .action(sinIn);
+    .action(singIn);
 
 program
     .command('logout')

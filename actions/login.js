@@ -61,6 +61,6 @@ function saveUserApiResponse(user) {
 }
 
 module.exports={
-    sinIn,
+    singIn,
     logout
 }
