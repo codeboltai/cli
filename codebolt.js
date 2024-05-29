@@ -9,6 +9,8 @@ const inquirer = require('inquirer');
 
 const {sinIn,logout} = require('./actions/login')
 
+// const { login } = require('./actions/login');
+const { list } = require('./actions/list');
 
 program.version('1.0.0');
 
@@ -31,6 +33,12 @@ program
     .command('upload <folderPath>')
     .description('Upload a folder')
     .action(uploadFolder);
+
+
+program
+  .command('list')
+  .description('List all the agents created and uploaded by me')
+  .action(list);
 
 program.parse(process.argv);
 
