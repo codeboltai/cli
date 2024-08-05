@@ -19,14 +19,14 @@ const signIn = () => {
         console.log(chalk.yellow('Already logged in.'));
     } else {
         const uuid = uuidv4();
-        
+       
         console.log(chalk.blue(`Please open this URL to login: http://portal.codebolt.ai/performSignIn?uid=${uuid}&loginflow=app`));
         const intervalId = setInterval(async () => {
           try {
             const response = await axios.get(
               `https://us-central1-codeboltai.cloudfunctions.net/checkOneTimeToken?oneTimeToken=${uuid}`
             );
-            // console.log(response.data)
+            console.log(response.data)
             if (response.status === 200) {
               clearInterval(intervalId);
               console.log(chalk.green('Login successful!'));
@@ -34,7 +34,7 @@ const signIn = () => {
             }
            // Assuming there is a function saveUserApiResponse to handle saving the response
           } catch (error) {
-            // console.error('Error checking token:', error);
+            console.log('Error checking token:', error);
           }
         }, 1000);
     }

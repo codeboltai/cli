@@ -1,18 +1,20 @@
 const path = require('path');
 const os = require('os');
+const fs = require('fs')
 const usersFile = path.join(os.homedir(), '.codebolt', 'users.json');
 
-export const getUserData = () => {
+const getUserData = () => {
     try {
         const data = fs.readFileSync(usersFile, 'utf8');
         //TODO: Decode the token and get the user data to show to the user
         return JSON.parse(data);
     } catch (error) {
-        console.error('Error reading user data:', error);
+        // console.log('Error reading user data:', error);
+        return false;
     }
 }
 
-export const saveUserData = (userData) => {
+const saveUserData = (userData) => {
     try {
         fs.writeFileSync(usersFile, JSON.stringify(userData, null, 4));
         console.log('User data saved successfully');
@@ -21,8 +23,9 @@ export const saveUserData = (userData) => {
     }
 }
 
-export const checkUserAuth = () => {
+const checkUserAuth = () => {
     const userData = getUserData();
+
     //TODO: Along with the file available check if the token is expired or not.
     if (!userData) {
         console.log('Please login first');
@@ -31,7 +34,7 @@ export const checkUserAuth = () => {
     return true;
 }
 
-export const deleteUserData = () => {
+const deleteUserData = () => {
     try {
         fs.unlinkSync(usersFile);
         console.log('User data deleted successfully');
@@ -39,3 +42,10 @@ export const deleteUserData = () => {
         console.error('Error deleting user data:', error);
     }
 }
+
+module.exports = {
+    getUserData,
+    saveUserData,
+    deleteUserData,
+    checkUserAuth
+};

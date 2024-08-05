@@ -4,7 +4,7 @@
   "description": "A CLI tool for version checking and folder uploads",
   "main": "codebolt.js",
   "bin": {
-    "codebolt": "./codebolt.js"
+    "codebolt-cli": "./codebolt.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,18 +1,14 @@
 #!/usr/bin/env node
-
-
-
 const { program } = require('commander');
 const { getVersion } = require('./actions/version');
 const { uploadFolder } = require('./actions/uploadfolder');
 const inquirer = require('inquirer');
 
 const {signIn,logout} = require('./actions/login')
-
 // const { login } = require('./actions/login');
 const { list } = require('./actions/list');
 
-program.version('1.0.0');
+program.version('1.0.1');
 
 program
     .command('version')
@@ -33,7 +29,6 @@ program
     .command('upload <folderPath>')
     .description('Upload a folder')
     .action(uploadFolder);
-
 
 program
   .command('list')
