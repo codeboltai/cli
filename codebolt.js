@@ -26,9 +26,9 @@ program
     .action(logout); // Added for logout
 
 program
-    .command('upload <folderPath>')
+    .command('publish [folderPath]')
     .description('Upload a folder')
-    .action(uploadFolder);
+    .action(uploadFolder)
 
 program
   .command('list')

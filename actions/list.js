@@ -13,12 +13,14 @@ const list = async () => {
     const token = userData.token;
 
     try {
-        const response = await axios.get('https://api.codebolt.ai/api/list', {
+        const response = await axios.get('https://codeboltai.web.app/api/agents/list', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        const agents = response.data.agents;
+
+      
+        const agents = response.data;
 
         if (agents.length === 0) {
             console.log(chalk.yellow('No agents found.'));
@@ -26,7 +28,7 @@ const list = async () => {
             console.log(chalk.green('List of agents:'));
             agents.forEach(agent => {
                 console.log(chalk.blue(`Agent ID: ${agent.id}`));
-                console.log(chalk.blue(`Agent Name: ${agent.name}`));
+                console.log(chalk.blue(`Agent Name: ${agent.title}`));
                 console.log(chalk.blue(`Status: ${agent.status}`));
                 console.log('-------------------------');
             });

@@ -21,6 +21,7 @@ const signIn = () => {
         const uuid = uuidv4();
        
         console.log(chalk.blue(`Please open this URL to login: http://portal.codebolt.ai/performSignIn?uid=${uuid}&loginflow=app`));
+        
         const intervalId = setInterval(async () => {
           try {
             const response = await axios.get(
@@ -34,7 +35,7 @@ const signIn = () => {
             }
            // Assuming there is a function saveUserApiResponse to handle saving the response
           } catch (error) {
-            console.log('Error checking token:', error);
+            // console.log('Error checking token:', error);
           }
         }, 1000);
     }

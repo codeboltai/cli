@@ -1,18 +1,40 @@
 const path = require('path');
 const os = require('os');
 const fs = require('fs')
-const usersFile = path.join(os.homedir(), '.codebolt', 'users.json');
+const usersDir = path.join(os.homedir(), '.codebolt');
+const usersFile = path.join(usersDir, 'users.json');
+
+// Ensure the directory and file exist
+const ensureFileExists = () => {
+    if (!fs.existsSync(usersDir)) {
+        try {
+            fs.mkdirSync(usersDir, { recursive: true }); // Create the directory if it doesn't exist
+        } catch (error) {
+            console.error('Error creating directory:', error);
+        }
+    }
+
+    if (!fs.existsSync(usersFile)) {
+        try {
+            fs.writeFileSync(usersFile, JSON.stringify([])); // Initialize with an empty array
+        } catch (error) {
+            console.error('Error creating user data file:', error);
+        }
+    }
+};
 
 const getUserData = () => {
     try {
+        ensureFileExists(); // Ensure the directory and file exist
         const data = fs.readFileSync(usersFile, 'utf8');
-        //TODO: Decode the token and get the user data to show to the user
+        // TODO: Decode the token and get the user data to show to the user
         return JSON.parse(data);
     } catch (error) {
-        // console.log('Error reading user data:', error);
+        console.error('Error reading user data:', error);
         return false;
     }
-}
+};
+
 
 const saveUserData = (userData) => {
     try {
