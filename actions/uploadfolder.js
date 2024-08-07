@@ -71,9 +71,9 @@ const uploadFolder = async (targetPath) => {
 	try {
 	  const data = getUserData();
 	  authToken = data.jwtToken;
-  
+    
 	  console.log(chalk.blue('Processing the Code....'));
-  
+    
 	  const folderPath = targetPath || '.';
 	  const folder = path.resolve(folderPath);
 	  const zipFilePath = `${folder}.zip`;
