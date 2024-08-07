@@ -47,9 +47,8 @@ const saveUserData = (userData) => {
 
 const checkUserAuth = () => {
     const userData = getUserData();
-
     //TODO: Along with the file available check if the token is expired or not.
-    if (!userData) {
+    if (Object.keys(userData).length === 0) {
         console.log('Please login first');
         return false;
     }
@@ -61,7 +60,7 @@ const deleteUserData = () => {
         fs.unlinkSync(usersFile);
         console.log('User data deleted successfully');
     } catch (error) {
-        console.error('Error deleting user data:', error);
+        // console.error('Error deleting user data:', error);
     }
 }
 

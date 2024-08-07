@@ -10,17 +10,41 @@ const list = async () => {
     }
 
     const userData = getUserData();
-    const token = userData.token;
+
+    if (!userData || !userData.jwtToken) {
+        console.log(chalk.red('Failed to retrieve user data or authentication token.'));
+        return;
+    }
+    
+    const token = userData.jwtToken;
 
     try {
+        // Fetch the list of agents
         const response = await axios.get('https://codeboltai.web.app/api/agents/list', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
 
-      
-        const agents = response.data;
+        // Fetch the username
+        const usernameResponse = await axios.get(
+            'https://codeboltai.web.app/api/auth/check-username',
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            }
+        );
+
+        if (!usernameResponse.data || !usernameResponse.data.usersData || usernameResponse.data.usersData.length === 0) {
+            console.log(chalk.red('Failed to retrieve username or no user data available.'));
+            return;
+        }
+
+        const username = usernameResponse.data.usersData[0].username;
+
+        // Filter agents created by the current user
+        const agents = response?.data?.filter(agent => agent.createdByUser === username) || [];
 
         if (agents.length === 0) {
             console.log(chalk.yellow('No agents found.'));
@@ -37,5 +61,6 @@ const list = async () => {
         console.error(chalk.red('Error fetching agents list:'), error);
     }
 };
+
 
 module.exports = { list };

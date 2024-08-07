@@ -27,7 +27,7 @@ const signIn = () => {
             const response = await axios.get(
               `https://us-central1-codeboltai.cloudfunctions.net/checkOneTimeToken?oneTimeToken=${uuid}`
             );
-            console.log(response.data)
+
             if (response.status === 200) {
               clearInterval(intervalId);
               console.log(chalk.green('Login successful!'));

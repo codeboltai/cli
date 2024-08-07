@@ -8,9 +8,8 @@ const AdmZip = require('adm-zip');
 const yaml = require('js-yaml');
 const StreamZip = require('node-stream-zip');
 const path = require('path');
-const { checkUserAuth } = require('./userData');
-const { validateYAML, checkYamlDetails } = require('./yamlService');
-
+const { checkUserAuth, getUserData } = require('./userData');
+const { validateYAML, checkYamlDetails } = require('../services/yamlService');
 
 // Function to check for node_modules and extract .yaml file
 async function processZipFile(zipFilePath) {
@@ -61,98 +60,99 @@ async function processZipFile(zipFilePath) {
 
 
 const uploadFolder = async (targetPath) => {
-  // Check if the user is logged in
-  if (!checkUserAuth()) {
-    console.log('Error: Please login using codebolt-cli login');
-    return;
-  }
-
-  console.log(chalk.blue('Processing the Code....'));
-  const folderPath = targetPath || '.';
-
-  // Resolve folder path and create zip file path
-  const folder = path.resolve(folderPath);
-  const zipFilePath = `${folder}.zip`;
-
-  const YamlValidation = await checkYamlDetails(folderPath);
-
-  if (!YamlValidation) { 
-	return;
-  }
-
-  // Create a file stream to write the zip file
-  const output = createWriteStream(zipFilePath);
-  const archive = archiver('zip', {
-    zlib: { level: 9 }
-  });
-
-  // Pipe archive data to the file
-  archive.pipe(output);
-
-  // Read .gitignore file and add its contents to the archiver's ignore list
-  const gitignorePath = path.join(folder, '.gitignore');
-  const ignoreFiles = ['node_modules/**/*', '**/*.zip']; // Ignore node_modules and zip files
-  if (fs.existsSync(gitignorePath)) {
-    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
-    ignoreFiles.push(...gitignoreContent.split('\n').filter(line => line && !line.startsWith('#')));
-  }
-
-  // Add files to the archive while respecting .gitignore
-  archive.glob('**/*', {
-    cwd: folder,
-    ignore: ignoreFiles
-  });
-
-  // Finalize the archive (i.e., finalize the zip file)
-  archive.finalize();
-
-  // Listen for the close event to handle the upload
-  output.on('close', async () => {
-    try {
-      if (YamlValidation.title) {
-        // Prepare the form data for file upload
-        const formData = new FormData();
-        formData.append('file', createReadStream(zipFilePath));
+	let authToken;
   
-        // Make the HTTP POST request to upload the file
-        const uploadResponse = await axios.post('https://codeboltai.web.app/api/upload/single', formData, {
-          headers: formData.getHeaders()
-        });
+	// Check if the user is logged in
+	if (!checkUserAuth()) {
+	  console.log(chalk.red('User not authenticated. Please login first.'));
+	  return;
+	}
   
-        if (uploadResponse.status === 200) {
-          // Prepare data for agent creation
-          const agentData = {
-            ...YamlValidation,
-            zipFilePath: uploadResponse.data.url
-          };
+	try {
+	  const data = getUserData();
+	  authToken = data.jwtToken;
   
-          // Make the HTTP POST request to add the agent
-          const agentResponse = await axios.post(
-            'https://codeboltai.web.app/api/agents/add',
-            agentData
-          );
+	  console.log(chalk.blue('Processing the Code....'));
   
-          // Handle the response for agent creation
-          if (agentResponse.status === 201) {
-            console.log(agentResponse.data.message);
-          } else {
-            console.log(`Unexpected status code: ${agentResponse.data.message}`);
-          }
-        } else {
-          console.log(`File upload failed with status code: ${uploadResponse.status}`);
-        }
-      } else {
-        console.log('YAML validation failed.');
-      }
-    } catch (error) {
-      console.error('Error handling zip file:', error);
-    }
-  });
-
-  archive.on('error', (err) => {
-    console.error('Archive error:', err);
-  });
-};
+	  const folderPath = targetPath || '.';
+	  const folder = path.resolve(folderPath);
+	  const zipFilePath = `${folder}.zip`;
+  
+	  const YamlValidation = await checkYamlDetails(folderPath);
+	  if (!YamlValidation) {
+		console.log('YAML validation failed.');
+		return;
+	  }
+  
+	  // Create a file stream to write the zip file
+	  const output = createWriteStream(zipFilePath);
+	  const archive = archiver('zip', { zlib: { level: 9 } });
+  
+	  // Pipe archive data to the file
+	  archive.pipe(output);
+  
+	  // Read .gitignore file and add its contents to the archiver's ignore list
+	  const gitignorePath = path.join(folder, '.gitignore');
+	  const ignoreFiles = ['node_modules/**/*', '**/*.zip']; // Ignore node_modules and zip files
+	  if (fs.existsSync(gitignorePath)) {
+		const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+		ignoreFiles.push(...gitignoreContent.split('\n').filter(line => line && !line.startsWith('#')));
+	  }
+  
+	  // Add files to the archive while respecting .gitignore
+	  archive.glob('**/*', {
+		cwd: folder,
+		ignore: ignoreFiles
+	  });
+  
+	  // Finalize the archive
+	  await new Promise((resolve, reject) => {
+		output.on('close', resolve);
+		archive.on('error', reject);
+		archive.finalize();
+	  });
+  
+	  // Handle the upload
+	  const formData = new FormData();
+	  formData.append('file', createReadStream(zipFilePath));
+  
+	  const uploadResponse = await axios.post('https://codeboltai.web.app/api/upload/single', formData, {
+		headers: formData.getHeaders()
+	  });
+  
+	  if (uploadResponse.status === 200) {
+		const getUsernameResponse = await axios.get(
+		  'https://codeboltai.web.app/api/auth/check-username',
+		  { headers: { 'Authorization': `Bearer ${authToken}` } }
+		);
+  
+		const username = getUsernameResponse.data.usersData[0].username;
+  
+		const agentData = {
+		  ...YamlValidation,
+		  zipFilePath: uploadResponse.data.url,
+		  createdByUser: username
+		};
+  
+		const agentResponse = await axios.post(
+		  'https://codeboltai.web.app/api/agents/add',
+		  agentData
+		);
+  
+		if (agentResponse.status === 201) {
+		  console.log(agentResponse.data.message);
+		} else {
+		  console.log(`Unexpected status code: ${agentResponse.data.message}`);
+		}
+	  } else {
+		console.log(`File upload failed with status code: ${uploadResponse.status}`);
+	  }
+  
+	} catch (error) {
+	  console.error('Error:', error.message || error);
+	}
+  };
+  
 
 
 module.exports = {
