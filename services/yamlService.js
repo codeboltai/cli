@@ -1,3 +1,4 @@
+const path = require('path')
 
 async function checkYamlDetails(folderPath) {
 	const yamlPathName = path.join(folderPath, 'codebolt.yaml');
