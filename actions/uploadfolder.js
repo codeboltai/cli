@@ -1,9 +1,4 @@
 const chalk = require('chalk');
-// const { post } = require('axios');
-// const { createWriteStream, createReadStream } = require('fs');
-// const archiver = require('archiver');
-// const fs = require('fs')
-// const axios = require('axios')
 const fs = require('fs');
 const archiver = require('archiver');
 const {createReadStream, createWriteStream} = require('fs');
@@ -12,19 +7,19 @@ const FormData = require('form-data');
 const AdmZip = require('adm-zip');
 const yaml = require('js-yaml');
 const StreamZip = require('node-stream-zip');
-const path = require('path')
+const path = require('path');
+const { checkUserAuth } = require('./userData');
+const { validateYAML, checkYamlDetails } = require('./yamlService');
+
+
 // Function to check for node_modules and extract .yaml file
 async function processZipFile(zipFilePath) {
-
-  console.log("zipFilePath---",zipFilePath)
 
 	try { // Create a new StreamZip instance
 		const zip = new StreamZip.async ({file: zipFilePath, storeEntries: true});
 
 		// List entries in the zip file
 		const entries = await zip.entries();
-    console.log('Zip entries:', Object.keys(entries));
-
 
 		// Check for node_modules directory
 		const containsNodeModules = Object.keys(entries).some(fileName => fileName.includes('node_modules'));
@@ -62,70 +57,28 @@ async function processZipFile(zipFilePath) {
 	}
 }
 
-const validateYAML = (parsedYAML) => {
-	const requiredFields = [
-		'title',
-		'unique_id',
-		'initial_message',
-		'description',
-		'tags',
-		'longDescription',
-		'avatarSrc',
-		'metadata',
-		'actions'
-	];
-	const metadataFields = ['agent_routing'];
 
-	// Check for missing required fields
-	const missingFields = requiredFields.filter(field => !parsedYAML[field]);
-	if (missingFields.length > 0) {
-		return `Missing required fields: ${
-			missingFields.join(', ')
-		}`;
-	}
 
-	// Check for missing metadata fields
-	if (!parsedYAML.metadata) {
-		return 'Missing metadata field';
-	}
-	const missingMetadataFields = metadataFields.filter(field => !parsedYAML.metadata[field]);
-	if (missingMetadataFields.length > 0) {
-		return `Missing required metadata fields: ${
-			missingMetadataFields.join(', ')
-		}`;
-	}
-
-	// Check for missing agent_routing fields
-	if (!parsedYAML.metadata.agent_routing) {
-		return 'Missing agent_routing field in metadata';
-	}
-	const agentRoutingFields = ['supportedlanguages', 'supportedframeworks'];
-	const missingAgentRoutingFields = agentRoutingFields.filter(field => !parsedYAML.metadata.agent_routing[field]);
-	if (missingAgentRoutingFields.length > 0) {
-		return `Missing required agent_routing fields: ${
-			missingAgentRoutingFields.join(', ')
-		}`;
-	}
-
-	return null; // No validation errors
-};
 
 const uploadFolder = async (targetPath) => {
+  // Check if the user is logged in
+  if (!checkUserAuth()) {
+    console.log('Error: Please login using codebolt-cli login');
+    return;
+  }
 
-
+  console.log(chalk.blue('Processing the Code....'));
   const folderPath = targetPath || '.';
 
-
-	// const YamlValidation = await processZipFile(folderPath)
-
-	// console.log(YamlValidation);
-
-	// return;
-	// Get all the entries (files/folders) in the ZIP file
-
-	// Resolve folder path and create zip file path
+  // Resolve folder path and create zip file path
   const folder = path.resolve(folderPath);
   const zipFilePath = `${folder}.zip`;
+
+  const YamlValidation = await checkYamlDetails(folderPath);
+
+  if (!YamlValidation) { 
+	return;
+  }
 
   // Create a file stream to write the zip file
   const output = createWriteStream(zipFilePath);
@@ -153,14 +106,9 @@ const uploadFolder = async (targetPath) => {
   // Finalize the archive (i.e., finalize the zip file)
   archive.finalize();
 
-  console.log(`Creating zip: ${zipFilePath}`);
-
   // Listen for the close event to handle the upload
   output.on('close', async () => {
     try {
-      // Process the ZIP file and validate the YAML content
-      const YamlValidation = await processZipFile(zipFilePath);
-  
       if (YamlValidation.title) {
         // Prepare the form data for file upload
         const formData = new FormData();
@@ -204,7 +152,6 @@ const uploadFolder = async (targetPath) => {
   archive.on('error', (err) => {
     console.error('Archive error:', err);
   });
-
 };
 
 
