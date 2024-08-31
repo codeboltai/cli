@@ -6,7 +6,7 @@ Codebolt is a CLI tool created using Node.js. It allows users to check the appli
 ## Installation
 To install Codebolt CLI tool locally, ensure you have Node.js and npm installed, then run:
 
-npm install -g .
+npm install -g codebolt-cli
 
 ## Usage
 
