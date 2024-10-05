@@ -26,7 +26,7 @@ const uploadFolder = async (targetPath) => {
         authToken = data.jwtToken;
 
         console.log(chalk.blue('Processing the Code....'));
-
+       
         const folderPath = targetPath || '.';
         const folder = path.resolve(folderPath);
         const zipFilePath = `${folder}.zip`;
@@ -64,6 +64,8 @@ const uploadFolder = async (targetPath) => {
             archive.on('error', reject);
             archive.finalize();
         });
+    
+
 
         // Handle the upload
         const formData = new FormData();
@@ -86,16 +88,18 @@ const uploadFolder = async (targetPath) => {
                 zipFilePath: uploadResponse.data.url,
                 createdByUser: username
             };
-
+            
+           
             const agentResponse = await axios.post(
                 'https://codeboltai.web.app/api/agents/add',
                 agentData
             );
+    
 
             if (agentResponse.status === 201) {
                 console.log(agentResponse.data.message);
             } else {
-                console.log(`Unexpected status code: ${agentResponse.data.message}`);
+                console.log(agentResponse.data.message);
             }
         } else {
             console.log(`File upload failed with status code: ${uploadResponse.status}`);
