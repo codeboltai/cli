@@ -76,8 +76,9 @@ const uploadFolder = async (targetPath) => {
             archive.finalize();
         });
     
-
+        console.log(chalk.green('Packaging Done.'));
         // Handle the upload
+        console.log(chalk.blue('Publishing Package...'))
         const formData = new FormData();
         formData.append('file', createReadStream(zipFilePath));
 
