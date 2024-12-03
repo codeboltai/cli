@@ -10,6 +10,7 @@ const StreamZip = require('node-stream-zip');
 const path = require('path');
 const { checkUserAuth, getUserData } = require('./userData');
 const { checkYamlDetails } = require('../services/yamlService');
+const { runBuild } = require('../services/buildService');
 
 
 const uploadFolder = async (targetPath) => {
@@ -20,7 +21,6 @@ const uploadFolder = async (targetPath) => {
         console.log(chalk.red('User not authenticated. Please login first.'));
         return;
     }
-
     try {
         const data = getUserData();
         authToken = data.jwtToken;
@@ -29,14 +29,23 @@ const uploadFolder = async (targetPath) => {
        
         const folderPath = targetPath || '.';
         const folder = path.resolve(folderPath);
-        const zipFilePath = `${folder}.zip`;
+      
 
         const YamlValidation = await checkYamlDetails(folderPath);
         if (!YamlValidation) {
             console.log('YAML validation failed.');
             return;
         }
+        try {
+            await runBuild(folderPath);
+             console.log(chalk.green('Build completed successfully.'));
+        } catch (error) {
+            console.log(chalk.red('Build failed:', error));
+            return;
+        }
 
+       
+        const zipFilePath = `${folder}/build.zip`;
         // Create a file stream to write the zip file
         const output = createWriteStream(zipFilePath);
         const archive = archiver('zip', { zlib: { level: 9 } });
@@ -51,10 +60,12 @@ const uploadFolder = async (targetPath) => {
             const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
             ignoreFiles.push(...gitignoreContent.split('\n').filter(line => line && !line.startsWith('#')));
         }
-
+       
+     
+        console.log(chalk.blue('Packaging in progress please wait...'));
         // Add files to the archive while respecting .gitignore
         archive.glob('**/*', {
-            cwd: folder,
+            cwd: `${folder}/dist`,
             ignore: ignoreFiles
         });
 
@@ -65,9 +76,9 @@ const uploadFolder = async (targetPath) => {
             archive.finalize();
         });
     
-
-
+        console.log(chalk.green('Packaging Done.'));
         // Handle the upload
+        console.log(chalk.blue('Publishing Package...'))
         const formData = new FormData();
         formData.append('file', createReadStream(zipFilePath));
 
