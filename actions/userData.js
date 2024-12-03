@@ -58,7 +58,7 @@ const checkUserAuth = () => {
 const deleteUserData = () => {
     try {
         fs.unlinkSync(usersFile);
-        console.log('User data deleted successfully');
+        // console.log('User data deleted successfully');
     } catch (error) {
         // console.error('Error deleting user data:', error);
     }
