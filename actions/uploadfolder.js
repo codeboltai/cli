@@ -83,7 +83,7 @@ const uploadFolder = async (targetPath) => {
         formData.append('file', createReadStream(zipFilePath));
         //GET SIGNED URL
 
-        const {url,key} = await axios.get('https://codeboltportalcloudflare.pages.dev/api/upload/single', {
+        const {url,key} = await axios.post('https://codeboltportalcloudflare.pages.dev/api/upload/single', {
             params: {
                "fileextention": "zip",
                "filetype": "agent"
