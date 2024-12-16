@@ -81,9 +81,24 @@ const uploadFolder = async (targetPath) => {
         console.log(chalk.blue('Publishing Package...'))
         const formData = new FormData();
         formData.append('file', createReadStream(zipFilePath));
+        //GET SIGNED URL
 
-        const uploadResponse = await axios.post('https://codeboltai.web.app/api/upload/single', formData, {
-            headers: formData.getHeaders()
+        const {url,key} = await axios.get('https://codeboltportalcloudflare.pages.dev/api/upload/single', {
+            params: {
+               "fileextention": "zip",
+               "filetype": "agent"
+            }
+        })
+       //Upload the file to the signed URL  
+        const uploadResponse = await axios({
+            method: 'post',
+            url: url,
+            data: formData,
+            headers: {
+                ...formData.getHeaders(),
+                'Content-Type': 'application/octet-stream'
+            },
+            responseType: 'arraybuffer'
         });
 
         if (uploadResponse.status === 200) {
@@ -96,7 +111,7 @@ const uploadFolder = async (targetPath) => {
 
             const agentData = {
                 ...YamlValidation,
-                zipFilePath: uploadResponse.data.url,
+                zipFilePath: `https://agentsdata.codebolt.ai/${key}`,
                 createdByUser: username
             };
             
