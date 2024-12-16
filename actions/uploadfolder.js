@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const fs = require('fs');
 const archiver = require('archiver');
-const {createReadStream, createWriteStream} = require('fs');
+const { createReadStream, createWriteStream } = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
 const AdmZip = require('adm-zip');
@@ -26,10 +26,10 @@ const uploadFolder = async (targetPath) => {
         authToken = data.jwtToken;
 
         console.log(chalk.blue('Processing the Code....'));
-       
+
         const folderPath = targetPath || '.';
         const folder = path.resolve(folderPath);
-      
+
 
         const YamlValidation = await checkYamlDetails(folderPath);
         if (!YamlValidation) {
@@ -38,13 +38,13 @@ const uploadFolder = async (targetPath) => {
         }
         try {
             await runBuild(folderPath);
-             console.log(chalk.green('Build completed successfully.'));
+            console.log(chalk.green('Build completed successfully.'));
         } catch (error) {
             console.log(chalk.red('Build failed:', error));
             return;
         }
 
-       
+
         const zipFilePath = `${folder}/build.zip`;
         // Create a file stream to write the zip file
         const output = createWriteStream(zipFilePath);
@@ -60,8 +60,8 @@ const uploadFolder = async (targetPath) => {
             const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
             ignoreFiles.push(...gitignoreContent.split('\n').filter(line => line && !line.startsWith('#')));
         }
-       
-     
+
+
         console.log(chalk.blue('Packaging in progress please wait...'));
         // Add files to the archive while respecting .gitignore
         archive.glob('**/*', {
@@ -75,31 +75,62 @@ const uploadFolder = async (targetPath) => {
             archive.on('error', reject);
             archive.finalize();
         });
-    
+
         console.log(chalk.green('Packaging Done.'));
         // Handle the upload
-        console.log(chalk.blue('Publishing Package...'))
-        const formData = new FormData();
-        formData.append('file', createReadStream(zipFilePath));
+        console.log(chalk.blue('Publishing Package...'));
+        // const zipFileStream = createReadStream(zipFilePath);
         //GET SIGNED URL
 
-        const {url,key} = await axios.post('https://codeboltportalcloudflare.pages.dev/api/upload/single', {
-            params: {
-               "fileextention": "zip",
-               "filetype": "agent"
-            }
-        })
-       //Upload the file to the signed URL  
-        const uploadResponse = await axios({
-            method: 'post',
-            url: url,
-            data: formData,
-            headers: {
-                ...formData.getHeaders(),
-                'Content-Type': 'application/octet-stream'
-            },
-            responseType: 'arraybuffer'
+        let reqData = JSON.stringify({
+            "fileextension": "zip",
+            "filetype": "agent"
         });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://codeboltportalcloudflare.pages.dev/api/upload/single',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: reqData
+        };
+
+        let response = await axios.request(config)
+
+        const { url, key } = response.data;
+        console.log(url, key);
+        //Upload the file to the signed URL  
+
+
+        // Upload the file to the signed URL  
+        // const uploadResponse = await axios({
+        //     method: 'put',
+        //     url: url,
+        //     data: zipFileStream, // Directly upload the binary stream
+        //     headers: {
+        //         'Content-Type': 'application/octet-stream'
+        //     },
+        //     responseType: 'arraybuffer'
+        // });
+
+        // try {
+            // Read the file as a stream or Buffer
+            const fileBuffer = fs.readFileSync(zipFilePath);
+
+            let uploadConfig = {
+              method: 'put',
+              maxBodyLength: Infinity,
+              url: url,
+              headers: { 
+                'Content-Type': 'application/zip',
+                'Content-Length': fileBuffer.length // Set the file size
+              },
+              data: fileBuffer, // Pass the file data
+            };
+        
+       let uploadResponse = await axios.request(uploadConfig);
 
         if (uploadResponse.status === 200) {
             const getUsernameResponse = await axios.get(
@@ -114,13 +145,13 @@ const uploadFolder = async (targetPath) => {
                 zipFilePath: `https://agentsdata.codebolt.ai/${key}`,
                 createdByUser: username
             };
-            
-           
+
+
             const agentResponse = await axios.post(
                 'https://codeboltai.web.app/api/agents/add',
                 agentData
             );
-    
+
 
             if (agentResponse.status === 201) {
                 console.log(agentResponse.data.message);
@@ -136,9 +167,9 @@ const uploadFolder = async (targetPath) => {
     }
 };
 
-  
+
 
 
 module.exports = {
-	uploadFolder
+    uploadFolder
 };
