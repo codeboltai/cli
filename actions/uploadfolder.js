@@ -79,7 +79,7 @@ const uploadFolder = async (targetPath) => {
         console.log(chalk.green('Packaging Done.'));
         // Handle the upload
         console.log(chalk.blue('Publishing Package...'));
-        // const zipFileStream = createReadStream(zipFilePath);
+   
         //GET SIGNED URL
 
         let reqData = JSON.stringify({
@@ -100,37 +100,24 @@ const uploadFolder = async (targetPath) => {
         let response = await axios.request(config)
 
         const { url, key } = response.data;
-        console.log(url, key);
-        //Upload the file to the signed URL  
+  
+        const fileBuffer = fs.readFileSync(zipFilePath);
 
-
-        // Upload the file to the signed URL  
-        // const uploadResponse = await axios({
-        //     method: 'put',
-        //     url: url,
-        //     data: zipFileStream, // Directly upload the binary stream
-        //     headers: {
-        //         'Content-Type': 'application/octet-stream'
-        //     },
-        //     responseType: 'arraybuffer'
-        // });
-
-        // try {
-            // Read the file as a stream or Buffer
-            const fileBuffer = fs.readFileSync(zipFilePath);
-
-            let uploadConfig = {
-              method: 'put',
-              maxBodyLength: Infinity,
-              url: url,
-              headers: { 
+        let uploadConfig = {
+            method: 'put',
+            maxBodyLength: Infinity,
+            url: url,
+            headers: {
                 'Content-Type': 'application/zip',
                 'Content-Length': fileBuffer.length // Set the file size
-              },
-              data: fileBuffer, // Pass the file data
-            };
-        
-       let uploadResponse = await axios.request(uploadConfig);
+            },
+            data: fileBuffer, // Pass the file data
+        };
+
+        let uploadResponse = await axios.request(uploadConfig);
+        // Delete the zip file after upload
+        fs.unlinkSync(zipFilePath);
+        // console.log(chalk.green('Zip file deleted after upload.'));
 
         if (uploadResponse.status === 200) {
             const getUsernameResponse = await axios.get(
