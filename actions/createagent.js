@@ -311,7 +311,16 @@ async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
         answers = await inquirer.prompt(prompts);
     }
     else {
-        
+        answers.projectName = projectName;
+        answers.unique_id = projectName.replace(/[^a-zA-Z0-9]/g, '')
+        answers.installPath = path.join(currentPath, projectName)
+        answers.template = 'basic'
+        answers.agentDescription = 'My Codebolt Agent'
+        answers.tags = ""
+        answers.worksonblankcode = true
+        answers.worksonexistingcode = true
+        answers.supportedlanguages = []
+        answers.supportedframeworks = []
     }
 
 
@@ -321,7 +330,6 @@ async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
 }
 
 const createagent = async (options) => {
-    console.log(options)
     console.log(chalk.blue(
         "  _____           _      _           _ _    \n"+
         " /  __ \\         | |    | |         | | |   \n"+
