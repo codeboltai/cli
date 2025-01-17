@@ -10,7 +10,8 @@ const { v4: uuidv4 } = require('uuid');
 
 const { checkUserAuth, getUserData } = require('./userData');
 
-async function askForActions(actionsData, parsedYaml) {
+async function askForActions(parsedYaml) {
+    const actionsData = [];
     console.log(chalk.yellow(`\n------------------------------Action Steps-----------------------------------------\n`));
     console.log(chalk.green("Actions are the functionality that your Agent provides to the user. These are like functionality shortcuts that the user can invoke using \\ command.\n"));
         
@@ -72,7 +73,8 @@ async function askForActions(actionsData, parsedYaml) {
     return actionsData;
   }
   
-async function askForInstructions(sdlc, parsedYaml) {
+async function askForInstructions(parsedYaml) {
+    const sdlc = [];
     let addMoreInstructions = true;
     console.log(chalk.yellow(`\n------------------------------SDLC Steps-----------------------------------------\n`));
     console.log(chalk.green("SDLC Steps are the software development steps that your Agent will handle like code generation, deployment, testing etc. \n These are used by Universal Agent Router to route the user request to the correct Agent Invocation.\n Also add sample Instructions that the user should give to invoke that SLDC Step functionality.\n"));
@@ -206,9 +208,10 @@ function createProject(projectName, installPath, selectedTemplate, answers, pars
     console.log(`Created ${projectName} at ${projectDir}`);
 }
 
-function getPrompts(projectName, quickEnabled, parsedYaml){
+async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
     
     const prompts = [];
+    const answers = [];
 
     const currentPath = process.cwd();
 
@@ -305,26 +308,20 @@ function getPrompts(projectName, quickEnabled, parsedYaml){
                 return true;
             }
         });
-    }   
+        answers = await inquirer.prompt(prompts);
+    }
+    else {
+        
+    }
 
 
 
    
-    return prompts;
+    return answers;
 }
 
 const createagent = async (options) => {
     console.log(options)
-    let projectName = options.name || process.argv[3];
-    const quickEnabled = options.quick || false;
-
-    const agentymlpath = path.join(__dirname, '..','template/basic', 'codeboltagent.yaml');
-    let agentYamlData = fs.readFileSync(agentymlpath, 'utf8');
-    const parsedYaml = yaml.load(agentYamlData);
-    const prompts = getPrompts(projectName, quickEnabled, parsedYaml)
-
-    
-
     console.log(chalk.blue(
         "  _____           _      _           _ _    \n"+
         " /  __ \\         | |    | |         | | |   \n"+
@@ -332,21 +329,20 @@ const createagent = async (options) => {
         " | |    / _ \\ / _` |/ _ \\ '_ \\ / _ \\| | __| \n"+
         " | \\__/\\ (_) | (_| |  __/ |_) | (_) | | |_  \n"+
         "  \\____/\\___/ \\__,_|\\___|_.__/ \\___/|_|\\__| \n"));
-        
-    inquirer.prompt(prompts).then(async answers => {
-        let sdlc = [];
-        let actionsData = [];
-        
-        let sdlcInstruction  = await askForInstructions(sdlc, parsedYaml)
-        let actions = await askForActions(actionsData, parsedYaml)
 
-        projectName = answers.projectName.trim();
-        const installPath = answers.installPath.trim() === '.' ? process.cwd() : path.resolve(process.cwd(), answers.installPath.trim());
-        const selectedTemplate = answers.template;
-        answers.sdlc_steps_managed = sdlcInstruction
-        answers.actions = actions
-        createProject(projectName, installPath, selectedTemplate, answers, parsedYaml);
-    });
+    let projectName = options.name || process.argv[3];
+    const quickEnabled = options.quick || false;
+
+    const agentymlpath = path.join(__dirname, '..','template/basic', 'codeboltagent.yaml');
+    let agentYamlData = fs.readFileSync(agentymlpath, 'utf8');
+    const parsedYaml = yaml.load(agentYamlData);
+    const answers = await getBasicAnswers(projectName, quickEnabled, parsedYaml)
+    projectName = answers.projectName.trim();
+    const installPath = answers.installPath.trim() === '.' ? process.cwd() : path.resolve(process.cwd(), answers.installPath.trim());
+    const selectedTemplate = answers.template;
+    answers.sdlc_steps_managed = !quickEnabled ? await askForInstructions(parsedYaml) : [];
+    answers.actions = !quickEnabled ? await askForActions(parsedYaml): [];
+    createProject(projectName, installPath, selectedTemplate, answers, parsedYaml);
 };
 
 
