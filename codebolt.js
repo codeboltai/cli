@@ -7,6 +7,7 @@ const inquirer = require('inquirer');
 const {signIn,logout} = require('./actions/login')
 // const { login } = require('./actions/login');
 const { list } = require('./actions/list');
+const { createagent } = require('./actions/createagent');
 
 program.version('1.0.1');
 
@@ -14,6 +15,15 @@ program
     .command('version')
     .description('Check the application version')
     .action(getVersion);
+
+program
+    .command('createagent')
+    .description('Create a new Codebolt Agent')
+    .option('-n, --name <name>', 'name of the project')
+    .option('--quick', 'create agent quickly with default settings')
+    .action((options) => {
+        createagent(options);
+    });
 
 program
     .command('login')
