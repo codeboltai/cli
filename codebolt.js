@@ -7,7 +7,7 @@ const inquirer = require('inquirer');
 const {signIn,logout} = require('./actions/login')
 // const { login } = require('./actions/login');
 const { list } = require('./actions/list');
-
+const {startAgent} = require('./actions/startAgent')
 program.version('1.0.1');
 
 program
@@ -34,6 +34,12 @@ program
   .command('list')
   .description('List all the agents created and uploaded by me')
   .action(list);
+
+program
+  .command('start-agent [workingDir]')
+  .description('Start an agent in the specified working directory')
+  .action(startAgent);
+
 
 program.parse(process.argv);
 
