@@ -3,7 +3,7 @@ const path = require('path');
 
 const startAgent = (workingDir) => {
     workingDir = workingDir || '.';
-    const env = { ...process.env, SOCKET_PORT: '12345' }; // Set the SOCKET_PORT environment variable
+    const env = { ...process.env, SOCKET_PORT: '12345',Is_Dev:true }; // Set the SOCKET_PORT environment variable
 
     const child = exec('npm start', { cwd: workingDir, env });
 
