@@ -53,7 +53,7 @@ function createProject( installPath, answers ) {
 async function getBasicAnswers(toolName){
     
     const prompts = [];
-    const answers = [];
+    let answers = [];
     const currentPath = process.cwd();
 
     prompts.push({
