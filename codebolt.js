@@ -10,7 +10,6 @@ const { list } = require('./actions/list');
 const {startAgent} = require('./actions/startAgent')
 const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
-const { execa } =  import("execa");
 
 
 program.version('1.0.1');
