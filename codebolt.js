@@ -10,6 +10,8 @@ const { list } = require('./actions/list');
 const {startAgent} = require('./actions/startAgent')
 const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
+const { execa } =  import("execa");
+
 
 program.version('1.0.1');
 
@@ -59,6 +61,36 @@ program
   .command('start-agent [workingDir]')
   .description('Start an agent in the specified working directory')
   .action(startAgent);
+
+program
+  .command('runtool [file]')
+  .description('Start a development server')
+  .action(async (file) => {
+    console.log("Running tool")
+    try {
+      await execa({
+        stdin: 'inherit',
+        stdout: 'inherit',
+        stderr: 'inherit',
+      })`npx @wong2/mcp-cli node ${file}`;
+    } catch {
+      process.exit(1);
+    }
+  });
+
+program
+  .command('inspecttool [file]')
+  .description('Inspect a server file')
+  .action(async (file) => {
+    try {
+      await execa({
+        stdout: 'inherit',
+        stderr: 'inherit',
+      })`npx @modelcontextprotocol/inspector node ${file}`;
+    } catch {
+      process.exit(1);
+    }
+  });
 
 
 program.parse(process.argv);
