@@ -63,20 +63,22 @@ program
   .action(startAgent);
 
 program
-  .command('runtool [file]')
-  .description('Start a development server')
-  .action(async (file) => {
-    console.log("Running tool")
+  .command('runtool <command> [file]')
+  .description('Run a specified tool with an optional file')
+  .action(async (command, file) => {
+    console.log("Running tool");
     try {
-      await execa({
-        stdin: 'inherit',
-        stdout: 'inherit',
-        stderr: 'inherit',
-      })`npx @wong2/mcp-cli node ${file}`;
-    } catch {
+      const args = ['@wong2/mcp-cli', command];
+      if (file) args.push(file);
+      await execa('npx', args, {
+        stdio: 'inherit',
+      });
+    } catch (error) {
+      console.error('Error running tool:', error.message);
       process.exit(1);
     }
   });
+
 
 program
   .command('inspecttool [file]')
