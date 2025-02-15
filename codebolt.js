@@ -10,7 +10,7 @@ const { list } = require('./actions/list');
 const {startAgent} = require('./actions/startAgent')
 const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
-
+const { spawn } = require('child_process');
 
 program.version('1.0.1');
 
@@ -61,16 +61,15 @@ program
   .description('Start an agent in the specified working directory')
   .action(startAgent);
 
-const { spawn } = require('child_process');
+
 
 program
-  .command('runtool <command> [file]')
-  .description('Run a specified tool with an optional file')
+  .command('runtool <command> <file>')
+  .description('Run a specified tool with a required file')
   .action((command, file) => {
     console.log("Running tool");
     try {
-      const args = ['@wong2/mcp-cli', command];
-      if (file) args.push(file);
+      const args = ['@wong2/mcp-cli', command, file];
       const child = spawn('npx', args, {
         stdio: 'inherit',
       });
@@ -93,7 +92,7 @@ program
   });
 
 program
-  .command('inspecttool [file]')
+  .command('inspecttool <file>')
   .description('Inspect a server file')
   .action((file) => {
     try {
