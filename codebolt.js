@@ -62,16 +62,30 @@ program
   .description('Start an agent in the specified working directory')
   .action(startAgent);
 
+const { spawn } = require('child_process');
+
 program
   .command('runtool <command> [file]')
   .description('Run a specified tool with an optional file')
-  .action(async (command, file) => {
+  .action((command, file) => {
     console.log("Running tool");
     try {
       const args = ['@wong2/mcp-cli', command];
       if (file) args.push(file);
-      await execa('npx', args, {
+      const child = spawn('npx', args, {
         stdio: 'inherit',
+      });
+
+      child.on('error', (error) => {
+        console.error('Error running tool:', error.message);
+        process.exit(1);
+      });
+
+      child.on('exit', (code) => {
+        if (code !== 0) {
+          console.error(`Tool process exited with code ${code}`);
+          process.exit(code);
+        }
       });
     } catch (error) {
       console.error('Error running tool:', error.message);
@@ -79,16 +93,24 @@ program
     }
   });
 
-
 program
   .command('inspecttool [file]')
   .description('Inspect a server file')
-  .action(async (file) => {
+  .action((file) => {
     try {
-      await execa({
-        stdout: 'inherit',
-        stderr: 'inherit',
-      })`npx @modelcontextprotocol/inspector node ${file}`;
+      const child = spawn('npx', ['@modelcontextprotocol/inspector', 'node', file], {
+        stdio: 'inherit',
+      });
+
+      child.on('error', () => {
+        process.exit(1);
+      });
+
+      child.on('exit', (code) => {
+        if (code !== 0) {
+          process.exit(code);
+        }
+      });
     } catch {
       process.exit(1);
     }
