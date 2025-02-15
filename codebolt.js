@@ -27,6 +27,14 @@ program
     });
 
 program
+    .command('createtool')
+    .description('Create a new Codebolt Tool')
+    .option('-n, --name <name>', 'name of the Tool')
+    .action((options) => {
+        createtool(options);
+    });
+
+program
     .command('login')
     .description('Log in to the application')
     .action(signIn);

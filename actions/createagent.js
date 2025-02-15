@@ -202,7 +202,7 @@ function createProject(projectName, installPath, selectedTemplate, answers, pars
     // (Node has issues spawning child processes in Windows).
     spawn.sync('npm', ['install'], { stdio: 'inherit', cwd: installPath });
   
-    spawn.sync('git', ['init'], { stdio: 'inherit', cwd: installPath });
+    // spawn.sync('git', ['init'], { stdio: 'inherit', cwd: installPath });
   
     console.log('Success! Your new project is ready.');
     console.log(`Created ${projectName} at ${projectDir}`);
@@ -215,8 +215,9 @@ async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
 
     const currentPath = process.cwd();
 
-    const templateDir = path.resolve(__dirname,'..', 'template');
-    const templates = fs.readdirSync(templateDir).filter(file => fs.statSync(path.join(templateDir, file)).isDirectory());
+    // const templateDir = path.resolve(__dirname,'..', 'template');
+    // const templates = fs.readdirSync(templateDir).filter(file => fs.statSync(path.join(templateDir, file)).isDirectory());
+    const templates = ['basic'];
 
 
 
@@ -345,7 +346,7 @@ const createagent = async (options) => {
     let projectName = options.name || process.argv[3];
     const quickEnabled = options.quick || false;
 
-    const agentymlpath = path.join(__dirname, '..','template/basic', 'codeboltagent.yaml');
+    const agentymlpath = path.join(__dirname, '..','template/agent', 'codeboltagent.yaml');
     let agentYamlData = fs.readFileSync(agentymlpath, 'utf8');
     const parsedYaml = yaml.load(agentYamlData);
     const answers = await getBasicAnswers(projectName, quickEnabled, parsedYaml)
