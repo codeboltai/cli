@@ -24,8 +24,11 @@ const signIn = () => {
         
         const intervalId = setInterval(async () => {
           try {
+            // const response = await axios.get(
+            //   `https://us-central1-codeboltai.cloudfunctions.net/checkOneTimeToken?oneTimeToken=${uuid}`
+            // );
             const response = await axios.get(
-              `https://us-central1-codeboltai.cloudfunctions.net/checkOneTimeToken?oneTimeToken=${uuid}`
+              `https://api.codebolt.ai/api/auth/gSignInFireFunHandler?oneTimeToken=${uuid}`
             );
 
             if (response.status === 200) {

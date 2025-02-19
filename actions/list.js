@@ -20,7 +20,7 @@ const list = async () => {
 
     try {
         // Fetch the list of agents
-        const response = await axios.get('https://codeboltai.web.app/api/agents/list', {
+        const response = await axios.get('https://api.codebolt.ai/api/agents/list', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -28,7 +28,7 @@ const list = async () => {
 
         // Fetch the username
         const usernameResponse = await axios.get(
-            'https://codeboltai.web.app/api/auth/check-username',
+            'https://api.codebolt.ai/api/auth/check-username',
             {
                 headers: {
                     'Authorization': `Bearer ${token}` 
