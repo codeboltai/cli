@@ -19,7 +19,6 @@ const signIn = () => {
 
         const intervalId = setInterval(async () => {
             try {
-              console.log(`https://api.codebolt.ai/api/auth/addonetimetoken?oneTimeToken=${uuid}`);
                 const response = await axios.post(
                     `https://api.codebolt.ai/api/auth/addonetimetoken?oneTimeToken=${uuid}`
                 );
@@ -30,7 +29,7 @@ const signIn = () => {
                     saveUserData(response.data);
                 }
             } catch (error) {
-                console.error(chalk.red('Error checking token:', error));
+                // console.error(chalk.red('Error checking token:', error));
             }
         }, 1000);
     }
