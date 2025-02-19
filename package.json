@@ -1,6 +1,6 @@
 {
   "name": "codebolt-cli",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "A CLI tool for version checking and folder uploads",
   "main": "codebolt.js",
   "bin": {
