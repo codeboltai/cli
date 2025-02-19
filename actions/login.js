@@ -28,7 +28,7 @@ const signIn = () => {
             //   `https://us-central1-codeboltai.cloudfunctions.net/checkOneTimeToken?oneTimeToken=${uuid}`
             // );
             const response = await axios.get(
-              `https://api.codebolt.ai/api/auth/gSignInFireFun?oneTimeToken=${uuid}`
+              `https://api.codebolt.ai/api/auth/addonetimetoken?oneTimeToken=${uuid}`
             );
 
             if (response.status === 200) {
