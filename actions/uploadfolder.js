@@ -90,7 +90,7 @@ const uploadFolder = async (targetPath) => {
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://codeboltportalcloudflare.pages.dev/api/upload/single',
+            url: 'https://api.codebolt.ai/api/upload/single',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -121,7 +121,7 @@ const uploadFolder = async (targetPath) => {
 
         if (uploadResponse.status === 200) {
             const getUsernameResponse = await axios.get(
-                'https://codeboltai.web.app/api/auth/check-username',
+                'https://api.codebolt.ai/api/auth/check-username',
                 { headers: { 'Authorization': `Bearer ${authToken}` } }
             );
 
@@ -135,7 +135,7 @@ const uploadFolder = async (targetPath) => {
 
 
             const agentResponse = await axios.post(
-                'https://codeboltai.web.app/api/agents/add',
+                'https://api.codebolt.ai/api/agents/add',
                 agentData
             );
 
