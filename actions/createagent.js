@@ -217,7 +217,7 @@ async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
 
     // const templateDir = path.resolve(__dirname,'..', 'template');
     // const templates = fs.readdirSync(templateDir).filter(file => fs.statSync(path.join(templateDir, file)).isDirectory());
-    const templates = ['basic'];
+    const templates = ['agent'];
 
 
 
@@ -319,7 +319,7 @@ async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
         } else {
             answers.installPath = path.join(currentPath, projectName);
         }
-        answers.template = 'basic'
+        answers.template = 'agent'
         answers.agentDescription = 'My Codebolt Agent'
         answers.tags = ""
         answers.worksonblankcode = true
