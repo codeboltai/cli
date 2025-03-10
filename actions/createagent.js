@@ -315,7 +315,7 @@ async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
         answers.projectName = projectName;
         answers.unique_id = projectName.replace(/[^a-zA-Z0-9]/g, '')
         if (fs.existsSync(path.join(currentPath, '.codeboltAgents'))) {
-            answers.installPath = path.join(currentPath, '.codeboltAgents', projectName);
+            answers.installPath = path.join(currentPath, '.codeboltAgents','agents', projectName);
         } else {
             answers.installPath = path.join(currentPath, projectName);
         }

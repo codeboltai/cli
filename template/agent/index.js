@@ -8,9 +8,8 @@ codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
         const userMessage = new UserMessage(req.message);
         const systemPrompt = new SystemPrompt("./agent.yaml", "test");
         const agentTools = await codebolt.MCP.getAllMCPTools("codebolt");
-        let {agents}= await codebolt.AGENT.getAgentsList('local')
         const task = new TaskInstruction(agentTools, userMessage, "./task.yaml", "main_task");
-        const agent = new Agent(agentTools, systemPrompt,1,agents);
+        const agent = new Agent(agentTools, systemPrompt);
         // console.log(agent.subAgents)
         const {message, success, error } = await agent.run(task);
         response(message ? message : error);
