@@ -1,23 +1,30 @@
-import { FastMCP } from "fastmcp";
-import { z } from "zod";
+import { ToolBox } from '@codebolt/codeboltjs/utils';
+import { z } from 'zod';
 
-const server = new FastMCP({
-  name: "MyTool",
-  version: "1.0.0",
+const toolbox = new ToolBox({
+  name: "MyTools",
+  version: "1.0.0"
 });
 
-server.addTool({
-  name: "add",
-  description: "Add two numbers",
+toolbox.addTool({
+  name: "hello",
+  description: "Says hello",
   parameters: z.object({
-    a: z.number(),
-    b: z.number(),
+    name: z.string().describe("Name to greet")
   }),
-  execute: async (args) => {
-    return String(args.a + args.b);
-  },
+  execute: async (args, context) => {
+    return `Hello, ${args.name}!`;
+  }
 });
 
-server.start({
-  transportType: "stdio",
-});
+async function main() {
+  try {
+    await toolbox.activate();
+    console.log('Toolbox is running!');
+  } catch (error) {
+    console.error('Failed to start toolbox:', error);
+  }
+}
+
+main();
+
