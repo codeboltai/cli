@@ -13,7 +13,7 @@ const { checkYamlDetails } = require('../services/yamlService');
 const { runBuild } = require('../services/buildService');
 
 
-const uploadFolder = async (targetPath) => {
+const publishAgent = async (targetPath) => {
     let authToken;
 
     // Check if the user is logged in
@@ -158,5 +158,5 @@ const uploadFolder = async (targetPath) => {
 
 
 module.exports = {
-    uploadFolder
-};
+    publishAgent
+}; 

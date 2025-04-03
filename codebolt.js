@@ -11,6 +11,7 @@ const {startAgent} = require('./actions/startAgent')
 const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
 const { spawn } = require('child_process');
+const { publishAgent } = require('./actions/publishAgent');
 
 program.version('1.0.1');
 
@@ -18,23 +19,6 @@ program
     .command('version')
     .description('Check the application version')
     .action(getVersion);
-
-program
-    .command('createagent')
-    .description('Create a new Codebolt Agent')
-    .option('-n, --name <name>', 'name of the project')
-    .option('--quick', 'create agent quickly with default settings')
-    .action((options) => {
-        createagent(options);
-    });
-
-program
-    .command('createtool')
-    .description('Create a new Codebolt Tool')
-    .option('-n, --name <name>', 'name of the Tool')
-    .action((options) => {
-        createtool(options);
-    });
 
 program
     .command('login')
@@ -46,22 +30,38 @@ program
     .description('Log out of the application') // Added for logout
     .action(logout); // Added for logout
 
-program
-    .command('publish [folderPath]')
-    .description('Upload a folder')
-    .action(uploadFolder)
 
 program
-  .command('list')
+    .command('createagent')
+    .description('Create a new Codebolt Agent')
+    .option('-n, --name <name>', 'name of the project')
+    .option('--quick', 'create agent quickly with default settings')
+    .action((options) => {
+        createagent(options);
+    });
+
+program
+    .command('publishagent [folderPath]')
+    .description('Upload a folder')
+    .action(publishAgent)
+
+program
+  .command('listagents')
   .description('List all the agents created and uploaded by me')
   .action(list);
 
 program
-  .command('start-agent [workingDir]')
+  .command('startagent [workingDir]')
   .description('Start an agent in the specified working directory')
   .action(startAgent);
 
-
+program
+  .command('createtool')
+  .description('Create a new Codebolt Tool')
+  .option('-n, --name <name>', 'name of the Tool')
+  .action((options) => {
+      createtool(options);
+  });
 
 program
   .command('runtool <command> <file>')
