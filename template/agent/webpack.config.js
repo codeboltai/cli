@@ -20,6 +20,13 @@ module.exports = {
     }),
   ],
   externalsPresets: { node: true }, // Ensures Node.js built-in modules are not bundled
+  externals: [
+    // Add native modules here
+    'tree-sitter-javascript',
+    'load-esm',
+    // Regex for all .node files
+    /\.node$/
+  ],
   module: {
     rules: [
       {
@@ -44,6 +51,10 @@ module.exports = {
         test: /\.handlebars$/,
         use: 'handlebars-loader', // Process .handlebars files
       },
+      {
+        test: /\.node$/,
+        loader: 'node-loader',
+      }
     ],
   },
   resolve: {
