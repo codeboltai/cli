@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const { program } = require('commander');
 const { getVersion } = require('./actions/version');
-const { uploadFolder } = require('./actions/uploadfolder');
+// const { uploadFolder } = require('./actions/uploadfolder');
 const inquirer = require('inquirer');
 
 const {signIn,logout} = require('./actions/login')
