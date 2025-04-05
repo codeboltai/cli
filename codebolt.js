@@ -12,6 +12,7 @@ const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
 const { spawn } = require('child_process');
 const { publishAgent } = require('./actions/publishAgent');
+const { pullAgent } = require('./actions/pullAgent');
 
 program.version('1.0.1');
 
@@ -54,6 +55,11 @@ program
   .command('startagent [workingDir]')
   .description('Start an agent in the specified working directory')
   .action(startAgent);
+
+program
+  .command('pullagent [workingDir]')
+  .description('Pull the latest agent configuration from server')
+  .action(pullAgent);
 
 program
   .command('createtool')
