@@ -80,46 +80,31 @@ const publishAgent = async (targetPath) => {
         // Handle the upload
         console.log(chalk.blue('Publishing Package...'));
    
-        //GET SIGNED URL
-
-        let reqData = JSON.stringify({
-            "fileextension": "zip",
-            "filetype": "agent"
-        });
+        //Create form data for upload
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(zipFilePath));
+        formData.append('filetype', 'agent');
 
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
             url: 'https://api.codebolt.ai/api/upload/single',
             headers: {
-                'Content-Type': 'application/json'
+                ...formData.getHeaders(),
+                'Authorization': `Bearer ${authToken}`
             },
-            data: reqData
+            data: formData
         };
 
-        let response = await axios.request(config)
+        let response = await axios.request(config);
 
-        const { url, key } = response.data;
+        const { key, publicUrl } = response.data;
   
-        const fileBuffer = fs.readFileSync(zipFilePath);
-
-        let uploadConfig = {
-            method: 'put',
-            maxBodyLength: Infinity,
-            url: url,
-            headers: {
-                'Content-Type': 'application/zip',
-                'Content-Length': fileBuffer.length // Set the file size
-            },
-            data: fileBuffer, // Pass the file data
-        };
-
-        let uploadResponse = await axios.request(uploadConfig);
         // Delete the zip file after upload
         fs.unlinkSync(zipFilePath);
         // console.log(chalk.green('Zip file deleted after upload.'));
 
-        if (uploadResponse.status === 200) {
+        if (response.data.success) {
             const getUsernameResponse = await axios.get(
                 'https://api.codebolt.ai/api/auth/check-username',
                 { headers: { 'Authorization': `Bearer ${authToken}` } }
@@ -129,7 +114,7 @@ const publishAgent = async (targetPath) => {
 
             const agentData = {
                 ...YamlValidation,
-                zipFilePath: `https://agentsdata.codebolt.ai/${key}`,
+                zipFilePath: publicUrl,
                 createdByUser: username
             };
 
@@ -146,7 +131,7 @@ const publishAgent = async (targetPath) => {
                 console.log(agentResponse.data.message);
             }
         } else {
-            console.log(`File upload failed with status code: ${uploadResponse.status}`);
+            console.log(`File upload failed with status code: ${response.status}`);
         }
 
     } catch (error) {
