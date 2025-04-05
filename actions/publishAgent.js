@@ -12,6 +12,46 @@ const { checkUserAuth, getUserData } = require('./userData');
 const { checkYamlDetails } = require('../services/yamlService');
 const { runBuild } = require('../services/buildService');
 
+// Function to create a zip archive
+const createZipArchive = async (sourcePath, outputPath, ignorePatterns = []) => {
+    return new Promise((resolve, reject) => {
+        const output = createWriteStream(outputPath);
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        
+        archive.on('error', err => reject(new Error(`Archive error: ${err.message}`)));
+        
+        output.on('close', () => resolve());
+        
+        archive.pipe(output);
+        
+        archive.glob('**/*', {
+            cwd: sourcePath,
+            ignore: ignorePatterns
+        });
+        
+        archive.finalize();
+    });
+};
+
+// Function to upload file and get URL
+const uploadFile = async (filePath, fileType, authToken) => {
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(filePath));
+    formData.append('filetype', fileType);
+    
+    try {
+        const response = await axios.post(
+            'https://api.codebolt.ai/api/upload/single',
+            formData,
+            {
+                headers: formData.getHeaders()
+            }
+        );
+        return response.data;
+    } catch (err) {
+        throw new Error(`Failed to upload ${fileType}: ${err.message}`);
+    }
+};
 
 const publishAgent = async (targetPath) => {
     let authToken;
@@ -21,6 +61,7 @@ const publishAgent = async (targetPath) => {
         console.log(chalk.red('User not authenticated. Please login first.'));
         return;
     }
+    
     try {
         const data = getUserData();
         authToken = data.jwtToken;
@@ -46,75 +87,49 @@ const publishAgent = async (targetPath) => {
             return;
         }
 
-        const zipFilePath = `${folder}/build.zip`;
-        // Create a file stream to write the zip file
-        const output = createWriteStream(zipFilePath);
-        const archive = archiver('zip', { zlib: { level: 9 } });
-
-        // Set up archive error handling
-        archive.on('error', (err) => {
-            throw new Error(`Archive error: ${err.message}`);
-        });
-
-        // Pipe archive data to the file
-        archive.pipe(output);
-
-        // Read .gitignore file and add its contents to the archiver's ignore list
+        // Read .gitignore file and add its contents to the ignore list
         const gitignorePath = path.join(folder, '.gitignore');
-        const ignoreFiles = ['node_modules/**/*', '**/*.zip']; // Ignore node_modules and zip files
+        const ignoreFiles = ['node_modules/**/*', '**/*.zip']; // Base ignore patterns
+        
         if (fs.existsSync(gitignorePath)) {
             const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
             ignoreFiles.push(...gitignoreContent.split('\n').filter(line => line && !line.startsWith('#')));
         }
 
-        console.log(chalk.blue('Packaging in progress please wait...'));
+        // Create dist build zip
+        console.log(chalk.blue('Packaging distribution build...'));
+        const distZipPath = `${folder}/build.zip`;
         
-        // Add files to the archive while respecting .gitignore
-        archive.glob('**/*', {
-            cwd: `${folder}/dist`,
-            ignore: ignoreFiles
-        });
+        await createZipArchive(`${folder}/dist`, distZipPath, ignoreFiles);
+        console.log(chalk.green('Distribution build packaging done.'));
+        
+        // Create source code zip
+        console.log(chalk.blue('Packaging source code...'));
+        const sourceZipPath = `${folder}/source.zip`;
+        
+        await createZipArchive(folder, sourceZipPath, ignoreFiles);
+        console.log(chalk.green('Source code packaging done.'));
 
-        // Finalize the archive
-        await new Promise((resolve, reject) => {
-            output.on('close', resolve);
-            archive.on('error', reject);
-            archive.finalize();
-        });
-
-        console.log(chalk.green('Packaging Done.'));
-        // Handle the upload
-        console.log(chalk.blue('Publishing Package...'));
-   
-        //Create form data for upload
-        const formData = new FormData();
-        formData.append('file', fs.createReadStream(zipFilePath));
-        formData.append('filetype', 'agent');
+        // Upload both zip files
+        console.log(chalk.blue('Uploading distribution build...'));
+        const distUploadResult = await uploadFile(distZipPath, 'agent', authToken);
+        const distPublicUrl = distUploadResult.publicUrl;
+        
+        console.log(chalk.blue('Uploading source code...'));
+        const sourceUploadResult = await uploadFile(sourceZipPath, 'agentsource', authToken);
+        const sourcePublicUrl = sourceUploadResult.publicUrl;
+        
+        console.log(chalk.green('Both packages uploaded successfully.'));
       
-        let response;
+        // Clean up zip files
         try {
-            response = await axios.post(
-                'https://api.codebolt.ai/api/upload/single',
-                formData,
-                {
-                headers: formData.getHeaders(), // this sets the correct Content-Type boundary
-                }
-            );
+            fs.unlinkSync(distZipPath);
+            fs.unlinkSync(sourceZipPath);
         } catch (err) {
-            throw new Error(`Failed to upload package: ${err.message}`);
+            console.warn(chalk.yellow(`Warning: Could not delete temp zip files: ${err.message}`));
         }
       
-        const { key, publicUrl } = response.data;
-  
-        // Delete the zip file after upload
-        try {
-            fs.unlinkSync(zipFilePath);
-            // console.log(chalk.green('Zip file deleted after upload.'));
-        } catch (err) {
-            console.warn(chalk.yellow(`Warning: Could not delete temp zip file: ${err.message}`));
-            // Continue even if we can't delete the zip file
-        }
-      
+        // Get username
         let username;
         try {
             const getUsernameResponse = await axios.get(
@@ -127,9 +142,11 @@ const publishAgent = async (targetPath) => {
             throw new Error(`Failed to get username: ${err.message}`);
         }
 
+        // Submit to API with both zip URLs
         const agentData = {
             ...YamlValidation,
-            zipFilePath: publicUrl,
+            zipFilePath: distPublicUrl,
+            sourceCodeUrl: sourcePublicUrl,
             createdByUser: username
         };
 
@@ -160,9 +177,6 @@ const publishAgent = async (targetPath) => {
         }
     }
 };
-
-
-
 
 module.exports = {
     publishAgent
