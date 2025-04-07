@@ -130,7 +130,8 @@ const pullAgent = async (workingDir) => {
             'status',
             'updatedAt',
             'id',
-            'createdAt'
+            'createdAt',
+            'lastUpdatedUI'
         ];
         
         // Create a clean config object without the excluded fields
