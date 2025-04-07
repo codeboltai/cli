@@ -156,6 +156,24 @@ const pullAgent = async (workingDir) => {
             
             fs.writeFileSync(yamlPath, updatedYamlString, 'utf8');
             console.log(chalk.green('Agent configuration successfully updated!'));
+
+            // Notify server that CLI has acknowledged the update
+            try {
+                await axios.put(
+                    `https://api.codebolt.ai/api/agents/uiupdateacknowledgedbycli?unique_id=${uniqueId}`,
+                    {},
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    }
+                );
+                console.log(chalk.green('Server notified of successful update.'));
+            } catch (error) {
+                console.log(chalk.yellow('Warning: Could not notify server of update:', 
+                    error.response?.data?.message || error.message));
+                // Don't return here as the local update was successful
+            }
         } catch (error) {
             console.log(chalk.red('Error updating YAML file:', error.message));
             return;

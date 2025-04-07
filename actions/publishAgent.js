@@ -55,6 +55,7 @@ const uploadFile = async (filePath, fileType, authToken) => {
 
 const publishAgent = async (targetPath) => {
     let authToken;
+    let username;
 
     // Check if the user is logged in
     if (!checkUserAuth()) {
@@ -66,6 +67,17 @@ const publishAgent = async (targetPath) => {
         const data = getUserData();
         authToken = data.jwtToken;
 
+        // Get current user's username
+        try {
+            const getUsernameResponse = await axios.get(
+                'https://api.codebolt.ai/api/auth/check-username',
+                { headers: { 'Authorization': `Bearer ${authToken}` } }
+            );
+            username = getUsernameResponse.data.usersData[0].username;
+        } catch (err) {
+            throw new Error(`Failed to get username: ${err.message}`);
+        }
+
         console.log(chalk.blue('Processing the Code....'));
 
         const folderPath = targetPath || '.';
@@ -76,6 +88,34 @@ const publishAgent = async (targetPath) => {
         if (!YamlValidation) {
             console.log(chalk.red('YAML validation failed.'));
             return;
+        }
+
+        // Check if agent already exists
+        try {
+            const agentResponse = await axios.get(
+                `https://api.codebolt.ai/api/agents/detailbyuid?unique_id=${YamlValidation.unique_id}`
+            );
+
+            if (agentResponse.data) {
+                // Check if agent was updated from UI
+                if (agentResponse.data.lastUpdatedUI) {
+                    console.log(chalk.yellow('This agent has been updated from the UI.'));
+                    console.log(chalk.yellow('Please run "npx codebolt-cli pullagent" to update your local configuration first.'));
+                    return;
+                }
+
+                // Check if current user is the creator
+                if (agentResponse.data.createdByUser !== username) {
+                    console.log(chalk.red('You are not authorized to update this agent.'));
+                    console.log(chalk.yellow('Please update the unique_id in your codeboltagent.yaml file to create a new agent.'));
+                    return;
+                }
+            }
+        } catch (err) {
+            // If 404 or other error, agent doesn't exist, continue with creation
+            if (err.response && err.response.status !== 404) {
+                throw new Error(`Failed to check agent existence: ${err.message}`);
+            }
         }
 
         // Run build
@@ -129,19 +169,6 @@ const publishAgent = async (targetPath) => {
             console.warn(chalk.yellow(`Warning: Could not delete temp zip files: ${err.message}`));
         }
       
-        // Get username
-        let username;
-        try {
-            const getUsernameResponse = await axios.get(
-                'https://api.codebolt.ai/api/auth/check-username',
-                { headers: { 'Authorization': `Bearer ${authToken}` } }
-            );
-
-            username = getUsernameResponse.data.usersData[0].username;
-        } catch (err) {
-            throw new Error(`Failed to get username: ${err.message}`);
-        }
-
         // Submit to API with both zip URLs
         const agentData = {
             ...YamlValidation,
