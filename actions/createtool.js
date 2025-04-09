@@ -29,14 +29,20 @@ function createProject( installPath, answers ) {
     parsedtoolYaml.name = answers.toolName;
     parsedtoolYaml.description = answers.toolDescription;
     parsedtoolYaml.version = "1.0.0";
-    parsedtoolYaml.uniqueName = answers.unique_id
+    parsedtoolYaml.uniqueName = answers.unique_id;
+    
+    // Add parameters if they exist
+    if (answers.parameters) {
+        parsedtoolYaml.parameters = answers.parameters;
+    }
+    
     toolYaml = yaml.dump(parsedtoolYaml);
     fs.writeFileSync(toolYamlPath, toolYaml, 'utf8');
 
     //Updating the index.js
     const indexjspath = path.join(projectDir, 'index.js');
     let indexjsData = fs.readFileSync(indexjspath, 'utf8');
-    indexjsData = indexjsData.replace(/MyTool/g, answers.unique_id);
+    indexjsData = indexjsData.replace(/MyTools/g, answers.unique_id);
     fs.writeFileSync(indexjspath, indexjsData, 'utf8');
   
 
@@ -50,24 +56,44 @@ function createProject( installPath, answers ) {
     console.log(`Created ${answers.unique_id} at ${projectDir}`);
 }
 
-async function getBasicAnswers(toolName){
-    
+async function getBasicAnswers(options) {
     const prompts = [];
-    let answers = [];
-    const currentPath = process.cwd();
+    let answers = {};
+    
+    // If name and id are provided, skip those prompts
+    if (options.name && options.id) {
+        answers.toolName = options.name;
+        answers.unique_id = options.id;
+        
+        // Only prompt for description if not provided
+        if (!options.description) {
+            prompts.push({
+                type: 'input',
+                name: 'toolDescription',
+                message: 'Please enter a description for your Tool:',
+                default: 'Description of the tool',
+            });
+            const descriptionAnswer = await inquirer.prompt(prompts);
+            answers.toolDescription = descriptionAnswer.toolDescription;
+        } else {
+            answers.toolDescription = options.description;
+        }
+        return answers;
+    }
 
+    // Otherwise show all prompts with defaults from options
     prompts.push({
         type: 'input',
         name: 'toolName',
         message: 'Please Enter the name of your Tool: (Accept Spaces, Only for Display)',
-        default: toolName,
+        default: options.name || '',
     });
 
     prompts.push({
         type: 'input',
         name: 'unique_id',
         message: 'Please enter the Unique Id without spaces: ',
-        default: toolName.replace(/[^a-zA-Z0-9]/g, ''),
+        default: options.id || (options.name ? options.name.replace(/[^a-zA-Z0-9]/g, '') : ''),
         validate: function (input) {
             if (/\s/.test(input)) {
                 return 'unique_id should not contain any spaces';
@@ -80,7 +106,7 @@ async function getBasicAnswers(toolName){
         type: 'input',
         name: 'toolDescription',
         message: 'Please enter a description for your Tool:',
-        default: 'Description of the tool',
+        default: options.description || 'Description of the tool',
     });
 
     answers = await inquirer.prompt(prompts);
@@ -96,10 +122,26 @@ const createtool = async (options) => {
         " | \\__/\\ (_) | (_| |  __/ |_) | (_) | | |_  \n"+
         "  \\____/\\___/ \\__,_|\\___|_.__/ \\___/|_|\\__| \n"));
 
-    let toolName = options.name || process.argv[3] || "";
+    // Validate unique ID if provided
+    if (options.id && /\s/.test(options.id)) {
+        console.error(chalk.red('Error: Unique ID cannot contain spaces'));
+        process.exit(1);
+    }
 
-    const answers = await getBasicAnswers(toolName);
-    toolName = answers.toolName.trim();
+    let parameters = null;
+    // Parse parameters if provided
+    if (options.parameters) {
+        try {
+            parameters = JSON.parse(options.parameters);
+        } catch (error) {
+            console.error(chalk.red('Error: Invalid JSON format in parameters'));
+            process.exit(1);
+        }
+    }
+
+    const answers = await getBasicAnswers(options);
+    answers.parameters = parameters;
+    const toolName = answers.toolName.trim();
 
     const currentDir = process.cwd();
     const codeboltAgentsPath = path.join(currentDir, '.codeboltAgents');

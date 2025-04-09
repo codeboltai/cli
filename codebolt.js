@@ -65,6 +65,9 @@ program
   .command('createtool')
   .description('Create a new Codebolt Tool')
   .option('-n, --name <name>', 'name of the Tool')
+  .option('-i, --id <unique-id>', 'unique identifier for the tool (no spaces)')
+  .option('-d, --description <description>', 'description of the tool')
+  .option('-p, --parameters <json>', 'tool parameters in JSON format (e.g., \'{"param1": "value1"}\')')
   .action((options) => {
       createtool(options);
   });
