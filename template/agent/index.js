@@ -7,10 +7,9 @@ codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
     try {
         const userMessage = new UserMessage(req.message);
         const systemPrompt = new SystemPrompt("./agent.yaml", "test");
-        const agentTools = await codebolt.MCP.getAllMCPTools("codebolt");
+        const agentTools = await codebolt.tools.getAvailableToolBoxes("codebolt");
         const task = new TaskInstruction(agentTools, userMessage, "./task.yaml", "main_task");
-        const agent = new Agent(agentTools, systemPrompt);
-        // console.log(agent.subAgents)
+        const agent = new Agent([], systemPrompt);
         const {message, success, error } = await agent.run(task);
         response(message ? message : error);
 

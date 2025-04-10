@@ -2,3 +2,6 @@ name: Math Serving Tool
 uniqueName: mathTool
 version: 1.0.0
 description: This tool allows users to add two numbers
+# env_required:
+#   - env_name: DB_PATH
+#     env_description: enter the path of database
