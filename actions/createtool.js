@@ -63,7 +63,7 @@ async function getBasicAnswers(options) {
     // If name and id are provided, skip those prompts
     if (options.name && options.id) {
         answers.toolName = options.name;
-        answers.unique_id = options.id;
+        answers.unique_id = options.id.toLowerCase();
         
         // Only prompt for description if not provided
         if (!options.description) {
@@ -92,8 +92,8 @@ async function getBasicAnswers(options) {
     prompts.push({
         type: 'input',
         name: 'unique_id',
-        message: 'Please enter the Unique Id without spaces: ',
-        default: options.id || (options.name ? options.name.replace(/[^a-zA-Z0-9]/g, '') : ''),
+        message: 'Please enter the Unique Id without spaces (will be converted to lowercase): ',
+        default: options.id?.toLowerCase() || (options.name ? options.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() : ''),
         validate: function (input) {
             if (/\s/.test(input)) {
                 return 'unique_id should not contain any spaces';
@@ -126,6 +126,11 @@ const createtool = async (options) => {
     if (options.id && /\s/.test(options.id)) {
         console.error(chalk.red('Error: Unique ID cannot contain spaces'));
         process.exit(1);
+    }
+
+    // Convert ID to lowercase if provided
+    if (options.id) {
+        options.id = options.id.toLowerCase();
     }
 
     let parameters = null;
