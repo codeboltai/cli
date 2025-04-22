@@ -10,9 +10,9 @@ const { list } = require('./actions/list');
 const {startAgent} = require('./actions/startAgent')
 const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
-const { spawn } = require('child_process');
 const { publishAgent } = require('./actions/publishAgent');
 const { pullAgent } = require('./actions/pullAgent');
+const { runTool, inspectTool } = require('./actions/toolCommands');
 
 program.version('1.0.1');
 
@@ -75,54 +75,12 @@ program
 program
   .command('runtool <command> <file>')
   .description('Run a specified tool with a required file')
-  .action((command, file) => {
-    console.log("Running tool");
-    try {
-      const args = ['@wong2/mcp-cli', command, file];
-      const child = spawn('npx', args, {
-        stdio: 'inherit',
-      });
-
-      child.on('error', (error) => {
-        console.error('Error running tool:', error.message);
-        process.exit(1);
-      });
-
-      child.on('exit', (code) => {
-        if (code !== 0) {
-          console.error(`Tool process exited with code ${code}`);
-          process.exit(code);
-        }
-      });
-    } catch (error) {
-      console.error('Error running tool:', error.message);
-      process.exit(1);
-    }
-  });
+  .action(runTool);
 
 program
   .command('inspecttool <file>')
   .description('Inspect a server file')
-  .action((file) => {
-    try {
-      const child = spawn('npx', ['@modelcontextprotocol/inspector', 'node', file], {
-        stdio: 'inherit',
-      });
-
-      child.on('error', () => {
-        process.exit(1);
-      });
-
-      child.on('exit', (code) => {
-        if (code !== 0) {
-          process.exit(code);
-        }
-      });
-    } catch {
-      process.exit(1);
-    }
-  });
-
+  .action(inspectTool);
 
 program.parse(process.argv);
 
