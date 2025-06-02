@@ -2,3 +2,4 @@ node_modules
 .codebolt
 .users.json
 .qodo
+.codeboltAgents

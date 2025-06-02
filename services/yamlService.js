@@ -50,6 +50,11 @@ function validateYAML(parsedYAML) {
 		return `Missing required fields: ${missingFields.join(', ')}`;
 	}
 
+	// Check if unique_id is lowercase
+	if (parsedYAML.unique_id && parsedYAML.unique_id !== parsedYAML.unique_id.toLowerCase()) {
+		return `The unique_id must be lowercase. Current value: ${parsedYAML.unique_id}`;
+	}
+
 	// Check for missing metadata fields
 	if (!parsedYAML.metadata) {
 		return 'Missing metadata field';
