@@ -13,6 +13,7 @@ const {createtool} = require("./actions/createtool")
 const { spawn } = require('child_process');
 const { publishAgent } = require('./actions/publishAgent');
 const { pullAgent } = require('./actions/pullAgent');
+const { cloneAgent } = require('./actions/cloneAgent');
 
 program.version('1.0.1');
 
@@ -97,29 +98,47 @@ program
     }
   });
 
+ 
+
 program
   .command('inspecttool <file>')
   .description('Inspect a server file')
   .action((file) => {
     try {
+      console.log(file)
       const child = spawn('npx', ['@modelcontextprotocol/inspector', 'node', file], {
         stdio: 'inherit',
       });
 
-      child.on('error', () => {
+      console.log(child)
+
+      console.log('Inspector process started for file:', file);
+
+      child.on('error', (error) => {
+        console.error('Error starting inspector process:', error.message);
         process.exit(1);
       });
 
       child.on('exit', (code) => {
         if (code !== 0) {
+          console.error(`Inspector process exited with code ${code}`);
           process.exit(code);
+        } else {
+          console.log('Inspector process completed successfully.');
         }
       });
-    } catch {
+    } catch (error) {
+      console.error('Unexpected error:', error.message);
       process.exit(1);
     }
   });
 
+program
+  .command('cloneagent <unique_id> [targetDir]')
+  .description('Clone an agent using its unique_id to the specified directory (defaults to current directory)')
+  .action((unique_id, targetDir) => {
+    cloneAgent(unique_id, targetDir);
+  });
 
 program.parse(process.argv);
 
