@@ -11,7 +11,10 @@ const {startAgent} = require('./actions/startAgent')
 const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
 const { publishAgent } = require('./actions/publishAgent');
+const { publishTool } = require('./actions/publishTool');
 const { pullAgent } = require('./actions/pullAgent');
+const { pullTool } = require('./actions/pullTool');
+const { listTools } = require('./actions/listTools');
 const { runTool, inspectTool } = require('./actions/toolCommands');
 const { spawn } = require('child_process');
 const { cloneAgent } = require('./actions/cloneAgent');
@@ -54,6 +57,11 @@ program
   .action(list);
 
 program
+  .command('listtools')
+  .description('List all the MCP tools published by me')
+  .action(listTools);
+
+program
   .command('startagent [workingDir]')
   .description('Start an agent in the specified working directory')
   .action(startAgent);
@@ -62,6 +70,11 @@ program
   .command('pullagent [workingDir]')
   .description('Pull the latest agent configuration from server')
   .action(pullAgent);
+
+program
+  .command('pulltool [workingDir]')
+  .description('Pull the latest MCP tool configuration from server')
+  .action(pullTool);
 
 program
   .command('createtool')
@@ -73,6 +86,11 @@ program
   .action((options) => {
       createtool(options);
   });
+
+program
+  .command('publishtool [folderPath]')
+  .description('Publish a MCP tool to the registry')
+  .action(publishTool);
 
 program
   .command('runtool <command> <file>')
