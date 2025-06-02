@@ -12,11 +12,9 @@ const { createagent } = require('./actions/createagent');
 const {createtool} = require("./actions/createtool")
 const { publishAgent } = require('./actions/publishAgent');
 const { pullAgent } = require('./actions/pullAgent');
-<<<<<<< HEAD
-const { cloneAgent } = require('./actions/cloneAgent');
-=======
 const { runTool, inspectTool } = require('./actions/toolCommands');
->>>>>>> 93811580ecb5fe30a12c2e83a8b5c034c009350e
+const { spawn } = require('child_process');
+const { cloneAgent } = require('./actions/cloneAgent');
 
 program.version('1.0.1');
 
