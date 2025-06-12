@@ -3,7 +3,7 @@ const codebolt = require('@codebolt/codeboltjs').default;
 
 const { UserMessage, SystemPrompt, TaskInstruction, Agent } = require("@codebolt/codeboltjs/utils");
 
-codebolt.chat.onActionMessage().on("userMessage", async (req, response) => {
+codebolt.onMessage(async (req, response) => {
     try {
         const userMessage = new UserMessage(req.message);
         const systemPrompt = new SystemPrompt("./agent.yaml", "test");
