@@ -1,7 +1,0 @@
-main_task:
-  description: >
-     description form your task
-
-  expected_output: >
-     youre expected output
-  agent: researcher
