@@ -211,7 +211,7 @@ function createProject(projectName, installPath, selectedTemplate, answers, pars
 async function getBasicAnswers(projectName, quickEnabled, parsedYaml){
     
     const prompts = [];
-    const answers = [];
+    let answers = [];
 
     const currentPath = process.cwd();
 
