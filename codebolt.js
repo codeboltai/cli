@@ -18,6 +18,7 @@ const { listTools } = require('./actions/listTools');
 const { runTool, inspectTool } = require('./actions/toolCommands');
 const { spawn } = require('child_process');
 const { cloneAgent } = require('./actions/cloneAgent');
+const { init } = require('./actions/init');
 
 program.version('1.0.1');
 
@@ -75,6 +76,8 @@ program
   .command('pulltool [workingDir]')
   .description('Pull the latest MCP tool configuration from server')
   .action(pullTool);
+
+
 
 program
   .command('createtool')
@@ -138,6 +141,11 @@ program
   .action((unique_id, targetDir) => {
     cloneAgent(unique_id, targetDir);
   });
+
+program
+  .command('init')
+  .description('Initialize the Codebolt CLI')
+  .action(init);
 
 program.parse(process.argv);
 

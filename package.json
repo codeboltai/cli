@@ -1,12 +1,12 @@
 {
   "name": "codebolt-cli",
-  "version": "1.1.42",
-  "description": "A CLI tool for version checking and folder uploads",
+  "version": "1.1.43",
+  "description": "A CLI tool for Codebolt",
   "main": "codebolt.js",
   "bin": {
     "codebolt-cli": "./codebolt.js"
   },
-  "author": "",
+  "author": "Codebolt",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/inspector": "^0.10.2",
