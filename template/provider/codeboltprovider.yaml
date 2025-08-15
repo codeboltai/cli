@@ -1,0 +1,8 @@
+name: remote-remoteprovider
+unique_id: remote-provider
+version: 1.0.0
+description: This is the  Remote Provider that helps in creating managing the Remote Docker Instances. This provider runs in Codebolt.
+tags:
+  - custom-agent
+  - codebolt-tool
+author: codebolt

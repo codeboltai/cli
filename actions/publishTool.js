@@ -203,8 +203,6 @@ const publishTool = async (targetPath) => {
                 console.log(chalk.yellow('Please update the unique_id in your codebolttool.yaml file to create a new tool.'));
                 return;
             }
-
-
         } catch (err) {
             console.warn(chalk.yellow(`Warning: Could not check existing MCP: ${err.message}`));
         }

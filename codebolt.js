@@ -19,6 +19,8 @@ const { runTool, inspectTool } = require('./actions/toolCommands');
 const { spawn } = require('child_process');
 const { cloneAgent } = require('./actions/cloneAgent');
 const { init } = require('./actions/init');
+const { createprovider } = require('./actions/createprovider');
+const { publishProvider } = require('./actions/publishProvider');
 
 program.version('1.0.1');
 
@@ -146,6 +148,22 @@ program
   .command('init')
   .description('Initialize the Codebolt CLI')
   .action(init);
+
+program
+  .command('createprovider')
+  .description('Create a new Codebolt Provider')
+  .option('-n, --name <name>', 'name of the provider')
+  .option('--quick', 'create provider quickly with default settings')
+  .action((options) => {
+      createprovider(options);
+  });
+program
+  .command('publishprovider [folderPath]')
+  .description('Publish a Codebolt Provider to the registry')
+  .action((options) => {
+    publishProvider(options);
+  });
+
 
 program.parse(process.argv);
 
