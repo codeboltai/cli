@@ -1,6 +1,6 @@
 {
   "name": "codebolt-cli",
-  "version": "1.1.43",
+  "version": "1.1.44",
   "description": "A CLI tool for Codebolt",
   "main": "codebolt.js",
   "bin": {
