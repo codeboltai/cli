@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Codebolt Provider Configuration",
+  "description": "Schema for codeboltprovider.yaml configuration file",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The display name of the provider"
+    },
+    "unique_id": {
+      "type": "string",
+      "description": "A unique identifier for the provider",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the provider",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the provider does"
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags for categorizing the provider",
+      "items": {
+        "type": "string"
+      }
+    },
+    "author": {
+      "type": "string",
+      "description": "Author of the provider"
+    }
+  },
+  "required": ["name", "unique_id", "version", "description", "author"],
+  "additionalProperties": false
+}

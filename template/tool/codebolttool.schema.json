@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Codebolt Tool Configuration",
+  "description": "Schema for codebolttool.yaml configuration file",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The display name of the tool"
+    },
+    "uniqueName": {
+      "type": "string",
+      "description": "A unique identifier for the tool",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the tool",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what the tool does"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author of the tool"
+    }
+  },
+  "required": ["name", "uniqueName", "version", "description"],
+  "additionalProperties": false
+}

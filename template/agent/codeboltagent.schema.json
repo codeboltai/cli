@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Codebolt Agent Configuration",
+  "description": "Schema for codeboltagent.yaml configuration file",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The title/name of the agent"
+    },
+    "unique_id": {
+      "type": "string",
+      "description": "A unique identifier for the agent",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$"
+    },
+    "initial_message": {
+      "type": "string",
+      "description": "The initial greeting message from the agent"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the agent"
+    },
+    "longDescription": {
+      "type": "string",
+      "description": "Detailed description of the agent functionality"
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags for categorizing the agent",
+      "items": {
+        "type": "string"
+      }
+    },
+    "avatarSrc": {
+      "type": "string",
+      "description": "URL to the agent's avatar image",
+      "format": "uri"
+    },
+    "avatarFallback": {
+      "type": "string",
+      "description": "Fallback text/initials for the avatar",
+      "maxLength": 2
+    },
+    "author": {
+      "type": "string",
+      "description": "Author of the agent"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the agent",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Agent metadata and configuration",
+      "properties": {
+        "agent_routing": {
+          "type": "object",
+          "description": "Routing configuration for the agent",
+          "properties": {
+            "worksonblankcode": {
+              "type": "boolean",
+              "description": "Whether the agent works on blank/new code"
+            },
+            "worksonexistingcode": {
+              "type": "boolean",
+              "description": "Whether the agent works on existing code"
+            },
+            "supportedlanguages": {
+              "type": "array",
+              "description": "Programming languages supported by the agent",
+              "items": {
+                "type": "string"
+              }
+            },
+            "supportedframeworks": {
+              "type": "array",
+              "description": "Frameworks supported by the agent",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "defaultagentllm": {
+          "type": "object",
+          "description": "Default LLM configuration for the agent",
+          "properties": {
+            "strict": {
+              "type": "boolean",
+              "description": "Whether to enforce strict model order"
+            },
+            "modelorder": {
+              "type": "array",
+              "description": "Ordered list of preferred models",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "sdlc_steps_managed": {
+          "type": "array",
+          "description": "SDLC steps that this agent manages",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the SDLC step"
+              },
+              "example_instructions": {
+                "type": "array",
+                "description": "Example instructions for this step",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["name"],
+            "additionalProperties": false
+          }
+        },
+        "llm_role": {
+          "type": "array",
+          "description": "Specialized LLM roles for different tasks",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the LLM role"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the LLM role"
+              },
+              "strict": {
+                "type": "boolean",
+                "description": "Whether to enforce strict model order"
+              },
+              "modelorder": {
+                "type": "array",
+                "description": "Ordered list of preferred models for this role",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["name", "description"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "actions": {
+      "type": "array",
+      "description": "Actions that the agent can perform",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the action"
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief description of the action"
+          },
+          "detailDescription": {
+            "type": "string",
+            "description": "Detailed description of the action"
+          },
+          "actionPrompt": {
+            "type": "string",
+            "description": "Prompt template for the action"
+          }
+        },
+        "required": ["name", "description"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["title", "unique_id", "description", "author", "version"],
+  "additionalProperties": false
+}
