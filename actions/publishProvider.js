@@ -123,7 +123,7 @@ const publishProvider = async (targetPath) => {
 
         // Read .gitignore file and add its contents to the ignore list
         const gitignorePath = path.join(folder, '.gitignore');
-        const ignoreFiles = ['node_modules/**/*', '**/*.zip']; // Base ignore patterns
+        const ignoreFiles = ['**/*.zip']; // Base ignore patterns
         
         if (fs.existsSync(gitignorePath)) {
             const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
