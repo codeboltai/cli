@@ -285,7 +285,7 @@ Specific markdown rules:
 - Should be simple, clear, and short, with just enough context that a user can quickly understand the task
 - Should be a verb and action-oriented, like "Add LRUCache interface to types.ts" or "Create new widget on the landing page"
 - **SHOULD NOT** include details like specific types, variable names, event names, etc., or making comprehensive lists of items or elements that will be updated, unless the user's goal is a large refactor that just involves making these changes
-- **IMPORTTANT** 
+- **IMPORTANT**: Always finish small talk responses with a codebolt-attempt_completion tool call do not  proceed to the next turn
 `.trim();
 codeboltjs_1.default.onMessage(async (reqMessage) => {
     try {
