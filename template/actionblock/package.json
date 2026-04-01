@@ -1,0 +1,23 @@
+{
+  "name": "codebolt-actionblock",
+  "version": "1.0.0",
+  "description": "A Codebolt action block",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["codebolt", "actionblock"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {},
+  "devDependencies": {
+    "tsx": "^4.19.1",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.19.0",
+    "typescript": "^5.7.2"
+  }
+}

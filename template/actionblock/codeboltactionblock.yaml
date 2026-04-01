@@ -1,0 +1,9 @@
+name: my-actionblock
+unique_id: my-actionblock
+version: 1.0.0
+description: A Codebolt action block.
+entryPoint: index.js
+tags:
+  - actionblock
+  - codebolt
+author: codebolt

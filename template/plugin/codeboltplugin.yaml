@@ -1,0 +1,8 @@
+name: my-plugin
+unique_id: my-plugin
+version: 1.0.0
+description: A Codebolt plugin.
+tags:
+  - plugin
+  - codebolt
+author: codebolt

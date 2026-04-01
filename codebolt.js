@@ -21,6 +21,14 @@ const { cloneAgent } = require('./actions/cloneAgent');
 const { init } = require('./actions/init');
 const { createprovider } = require('./actions/createprovider');
 const { publishProvider } = require('./actions/publishProvider');
+const { createplugin } = require('./actions/createplugin');
+const { publishPlugin } = require('./actions/publishPlugin');
+const { createskill } = require('./actions/createskill');
+const { publishSkill } = require('./actions/publishSkill');
+const { createactionblock } = require('./actions/createactionblock');
+const { publishActionBlock } = require('./actions/publishActionBlock');
+const { createcapability } = require('./actions/createcapability');
+const { publishCapability } = require('./actions/publishCapability');
 
 program.version('1.0.1');
 
@@ -164,6 +172,69 @@ program
     publishProvider(options);
   });
 
+program
+  .command('createplugin')
+  .description('Create a new Codebolt Plugin')
+  .option('-n, --name <name>', 'name of the plugin')
+  .option('--quick', 'create plugin quickly with default settings')
+  .action((options) => {
+    createplugin(options);
+  });
+
+program
+  .command('publishplugin [folderPath]')
+  .description('Publish a Codebolt Plugin to the registry')
+  .action((folderPath) => {
+    publishPlugin(folderPath);
+  });
+
+program
+  .command('createskill')
+  .description('Create a new Codebolt Skill')
+  .option('-n, --name <name>', 'name of the skill')
+  .option('--quick', 'create skill quickly with default settings')
+  .action((options) => {
+    createskill(options);
+  });
+
+program
+  .command('publishskill [folderPath]')
+  .description('Publish a Codebolt Skill to the registry')
+  .action((folderPath) => {
+    publishSkill(folderPath);
+  });
+
+program
+  .command('createactionblock')
+  .description('Create a new Codebolt ActionBlock')
+  .option('-n, --name <name>', 'name of the actionblock')
+  .option('--quick', 'create actionblock quickly with default settings')
+  .action((options) => {
+    createactionblock(options);
+  });
+
+program
+  .command('publishactionblock [folderPath]')
+  .description('Publish a Codebolt ActionBlock to the registry')
+  .action((folderPath) => {
+    publishActionBlock(folderPath);
+  });
+
+program
+  .command('createcapability')
+  .description('Create a new Codebolt Capability')
+  .option('-n, --name <name>', 'name of the capability')
+  .option('--quick', 'create capability quickly with default settings')
+  .action((options) => {
+    createcapability(options);
+  });
+
+program
+  .command('publishcapability [folderPath]')
+  .description('Publish a Codebolt Capability to the registry')
+  .action((folderPath) => {
+    publishCapability(folderPath);
+  });
 
 program.parse(process.argv);
 

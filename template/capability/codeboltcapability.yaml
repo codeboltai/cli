@@ -1,0 +1,10 @@
+name: my-capability
+unique_id: my-capability
+version: 1.0.0
+description: A Codebolt capability.
+type: skill
+entryPoint: index.js
+tags:
+  - capability
+  - codebolt
+author: codebolt
