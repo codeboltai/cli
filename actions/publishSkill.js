@@ -6,7 +6,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const yaml = require('js-yaml');
 const path = require('path');
-const { checkUserAuth, getUserData } = require('./userData');
+const { getAuthToken } = require('./userData');
 const { runBuild } = require('../services/buildService');
 
 const createZipArchive = async (sourcePath, outputPath, ignorePatterns = []) => {
@@ -44,14 +44,13 @@ const readConfig = async (folderPath) => {
 };
 
 const publishSkill = async (targetPath) => {
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    const authToken = getAuthToken();
+    if (!authToken) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
 
     try {
-        const data = getUserData();
-        const authToken = data.jwtToken;
 
         const usernameRes = await axios.get('https://api.codebolt.ai/api/auth/check-username', { headers: { 'Authorization': `Bearer ${authToken}` } });
         const username = usernameRes.data.usersData[0].username;

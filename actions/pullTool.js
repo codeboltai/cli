@@ -4,7 +4,7 @@ const path = require('path');
 const axios = require('axios');
 const yaml = require('js-yaml');
 const inquirer = require('inquirer');
-const { checkUserAuth, getUserData } = require('./userData');
+const { getAuthToken, getUserData } = require('./userData');
 
 // MCP API endpoints
 const MCP_API_BASE = 'https://api.codebolt.ai';
@@ -26,15 +26,13 @@ const compareVersions = (version1, version2) => {
 };
 
 const pullTool = async (workingDir) => {
-    // Check if the user is logged in
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    const authToken = getAuthToken();
+    if (!authToken) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
 
     try {
-        const userData = getUserData();
-        const authToken = userData.jwtToken;
         
         const folderPath = workingDir || '.';
         const fullPath = path.resolve(folderPath);
@@ -75,7 +73,7 @@ const pullTool = async (workingDir) => {
                 {
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
-                        'x-codebolt-userId': userData.userId
+                        'x-codebolt-userId': ''
                     }
                 }
             );

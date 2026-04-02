@@ -1,22 +1,14 @@
 const chalk = require('chalk');
 const axios = require('axios');
 
-const { checkUserAuth, getUserData } = require('./userData');
+const { checkUserAuth, getAuthToken } = require('./userData');
 
 const list = async () => {
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    const token = getAuthToken();
+    if (!token) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
-
-    const userData = getUserData();
-
-    if (!userData || !userData.jwtToken) {
-        console.log(chalk.red('Failed to retrieve user data or authentication token.'));
-        return;
-    }
-    
-    const token = userData.jwtToken;
 
     try {
         // Fetch the list of agents

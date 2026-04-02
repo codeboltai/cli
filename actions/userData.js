@@ -1,72 +1,126 @@
 const path = require('path');
 const os = require('os');
-const fs = require('fs')
-const usersDir = path.join(os.homedir(), '.codebolt');
-const usersFile = path.join(usersDir, 'users.json');
+const fs = require('fs');
 
-// Ensure the directory and file exist
-const ensureFileExists = () => {
-    if (!fs.existsSync(usersDir)) {
-        try {
-            fs.mkdirSync(usersDir, { recursive: true }); // Create the directory if it doesn't exist
-        } catch (error) {
-            console.error('Error creating directory:', error);
-        }
-    }
+const codeboltDir = path.join(os.homedir(), '.codebolt');
+const settingsFile = path.join(codeboltDir, 'settings.json');
 
-    if (!fs.existsSync(usersFile)) {
-        try {
-            fs.writeFileSync(usersFile, JSON.stringify([])); // Initialize with an empty array
-        } catch (error) {
-            console.error('Error creating user data file:', error);
-        }
-    }
-};
-
-const getUserData = () => {
+/**
+ * Read ~/.codebolt/settings.json (shared with CodeBolt desktop app).
+ */
+const readSettings = () => {
     try {
-        ensureFileExists(); // Ensure the directory and file exist
-        const data = fs.readFileSync(usersFile, 'utf8');
-        // TODO: Decode the token and get the user data to show to the user
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading user data:', error);
-        return false;
+        if (!fs.existsSync(settingsFile)) return null;
+        const raw = fs.readFileSync(settingsFile, 'utf8');
+        return JSON.parse(raw);
+    } catch {
+        return null;
     }
 };
 
+/**
+ * Write ~/.codebolt/settings.json atomically.
+ */
+const writeSettings = (settings) => {
+    if (!fs.existsSync(codeboltDir)) {
+        fs.mkdirSync(codeboltDir, { recursive: true });
+    }
+    const tmp = settingsFile + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(settings, null, 2));
+    fs.renameSync(tmp, settingsFile);
+};
 
+/**
+ * Get the first user from settings.json (shared with CodeBolt desktop app).
+ */
+const getUserData = () => {
+    const settings = readSettings();
+    if (!settings?.codebolt_users?.length) return null;
+    return settings.codebolt_users[0];
+};
+
+/**
+ * Save user auth data into settings.json, matching the CodeBolt desktop app format.
+ */
 const saveUserData = (userData) => {
     try {
-        fs.writeFileSync(usersFile, JSON.stringify(userData, null, 4));
+        const settings = readSettings() || {
+            codebolt_users: [],
+            userProfileSetting: null,
+        };
+
+        const token = userData.jwtToken || userData.token || '';
+        const userId = userData.userId || '';
+
+        const existingIdx = settings.codebolt_users.findIndex(
+            (u) => u.username === userId
+        );
+
+        const userEntry = {
+            userId: existingIdx >= 0 ? settings.codebolt_users[existingIdx].userId : (settings.codebolt_users.length + 1),
+            username: userId,
+            userImageUrl: null,
+            usertoken: token,
+        };
+
+        if (existingIdx >= 0) {
+            settings.codebolt_users[existingIdx] = {
+                ...settings.codebolt_users[existingIdx],
+                ...userEntry,
+            };
+        } else {
+            settings.codebolt_users.push(userEntry);
+        }
+
+        writeSettings(settings);
         console.log('User data saved successfully');
     } catch (error) {
         console.error('Error saving user data:', error);
     }
-}
+};
 
+/**
+ * Check if a user is authenticated.
+ */
 const checkUserAuth = () => {
-    const userData = getUserData();
-    //TODO: Along with the file available check if the token is expired or not.
-    if (Object.keys(userData).length === 0) {
-        console.log('Please login first');
+    const user = getUserData();
+    if (!user || !user.usertoken) {
         return false;
     }
     return true;
-}
+};
 
+/**
+ * Remove all users from settings.json (logout).
+ */
 const deleteUserData = () => {
     try {
-        fs.unlinkSync(usersFile);
-        // console.log('User data deleted successfully');
-    } catch (error) {
-        // console.error('Error deleting user data:', error);
+        const settings = readSettings();
+        if (settings) {
+            settings.codebolt_users = [];
+            writeSettings(settings);
+        }
+    } catch {
+        // Silent fail on logout
     }
-}
+};
+
+/**
+ * Get the auth token. Priority:
+ * 1. CODEBOLT_TOKEN env var
+ * 2. usertoken from settings.json
+ */
+const getAuthToken = () => {
+    if (process.env.CODEBOLT_TOKEN) return process.env.CODEBOLT_TOKEN;
+    const user = getUserData();
+    if (!user) return null;
+    return user.usertoken || null;
+};
 
 module.exports = {
     getUserData,
     saveUserData,
     deleteUserData,
-    checkUserAuth
+    checkUserAuth,
+    getAuthToken,
 };

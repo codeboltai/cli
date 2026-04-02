@@ -8,7 +8,7 @@ const AdmZip = require('adm-zip');
 const yaml = require('js-yaml');
 const StreamZip = require('node-stream-zip');
 const path = require('path');
-const { checkUserAuth, getUserData } = require('./userData');
+const { checkUserAuth, getUserData, getAuthToken } = require('./userData');
 const { checkYamlDetails } = require('../services/yamlService');
 const { runBuild } = require('../services/buildService');
 
@@ -57,15 +57,13 @@ const publishAgent = async (targetPath) => {
     let authToken;
     let username;
 
-    // Check if the user is logged in
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    authToken = getAuthToken();
+    if (!authToken) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
-    
+
     try {
-        const data = getUserData();
-        authToken = data.jwtToken;
 
         // Get current user's username
         try {

@@ -6,7 +6,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const yaml = require('js-yaml');
 const path = require('path');
-const { checkUserAuth, getUserData } = require('./userData');
+const { getAuthToken } = require('./userData');
 const { checkYamlDetails } = require('../services/yamlService');
 const { runBuild } = require('../services/buildService');
 
@@ -80,15 +80,13 @@ const publishProvider = async (targetPath) => {
     let authToken;
     let username;
 
-    // Check if the user is logged in
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    authToken = getAuthToken();
+    if (!authToken) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
-    
+
     try {
-        const data = getUserData();
-        authToken = data.jwtToken;
 
         // Get current user's username
         try {

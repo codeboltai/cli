@@ -1,20 +1,18 @@
 const chalk = require('chalk');
 const axios = require('axios');
-const { checkUserAuth, getUserData } = require('./userData');
+const { getAuthToken } = require('./userData');
 
 // MCP API endpoints - adjust these based on your actual API base URL
 const MCP_API_BASE = 'https://api.codebolt.ai'; // Update this to your actual MCP API base URL
 
 const listTools = async () => {
-    // Check if the user is logged in
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    const authToken = getAuthToken();
+    if (!authToken) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
-    
+
     try {
-        const data = getUserData();
-        const authToken = data.jwtToken;
 
         // Get current user's username
         let username;
@@ -37,7 +35,7 @@ const listTools = async () => {
                 {
                     headers: {
                         'Authorization': `Bearer ${authToken}`,
-                        'x-codebolt-userId': data.userId
+                        'x-codebolt-userId': ''
                     }
                 }
             );

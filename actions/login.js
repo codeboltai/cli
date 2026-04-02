@@ -3,14 +3,39 @@ const axios = require('axios');
 const chalk = require('chalk');
 const { saveUserData, checkUserAuth, deleteUserData } = require('./userData');
 
-// Function to log out the user
 const logout = () => {
     deleteUserData();
     console.log('Logged out successfully');
 };
 
-// Function to sign in the user
-const signIn = () => {
+const signIn = async (options = {}) => {
+    // Login with a pre-created login token (skip browser flow)
+    if (options.token) {
+        try {
+            // Validate the token by making a test API call
+            const response = await axios.get(
+                'https://api.codebolt.ai/api/auth/check-username',
+                { headers: { Authorization: `Bearer ${options.token}` } }
+            );
+
+            if (response.data?.usersData?.length > 0) {
+                const user = response.data.usersData[0];
+                saveUserData({
+                    jwtToken: options.token,
+                    userId: user.userId,
+                    userName: user.username || '',
+                });
+                console.log(chalk.green('Login successful with token!'));
+            } else {
+                console.log(chalk.red('Invalid token. Could not authenticate.'));
+            }
+        } catch (error) {
+            console.log(chalk.red('Invalid token. Could not authenticate.'));
+        }
+        return;
+    }
+
+    // Standard browser-based login flow
     if (checkUserAuth()) {
         console.log(chalk.yellow('Already logged in.'));
     } else {
@@ -29,7 +54,7 @@ const signIn = () => {
                     saveUserData(response.data);
                 }
             } catch (error) {
-                // console.error(chalk.red('Error checking token:', error));
+                // Polling — silently retry
             }
         }, 1000);
     }

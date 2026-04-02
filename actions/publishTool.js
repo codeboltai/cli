@@ -7,7 +7,7 @@ const FormData = require('form-data');
 const yaml = require('js-yaml');
 const path = require('path');
 const inquirer = require('inquirer');
-const { checkUserAuth, getUserData } = require('./userData');
+const { checkUserAuth, getUserData, getAuthToken } = require('./userData');
 
 // MCP API endpoints - adjust these based on your actual API base URL
 const MCP_API_BASE = 'https://api.codebolt.ai'; // Update this to your actual MCP API base URL
@@ -139,7 +139,7 @@ const createOrUpdateMcp = async (mcpData, authToken, isUpdate = false) => {
             headers: {
                 'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json',
-                'x-codebolt-userId': getUserData().userId
+                'x-codebolt-userId': (getUserData()?.username || '')
             }
         });
         
@@ -153,15 +153,13 @@ const publishTool = async (targetPath) => {
     let authToken;
     let username;
 
-    // Check if the user is logged in
-    if (!checkUserAuth()) {
-        console.log(chalk.red('User not authenticated. Please login first.'));
+    authToken = getAuthToken();
+    if (!authToken) {
+        console.log(chalk.red('Not authenticated. Run "codebolt login" or pass --token flag.'));
         return;
     }
-    
+
     try {
-        const data = getUserData();
-        authToken = data.jwtToken;
 
         // Get current user's username
         try {

@@ -42,7 +42,8 @@ program
 program
     .command('login')
     .description('Log in to the application')
-    .action(signIn);
+    .option('-t, --token <token>', 'Login token for authentication (skip browser login)')
+    .action((options) => signIn(options));
 
 program
     .command('logout')
