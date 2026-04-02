@@ -1,0 +1,13 @@
+name: my-executor
+unique_id: my-executor
+version: 1.0.0
+description: A Codebolt capability executor.
+supportedTypes:
+  - skill
+  - power
+  - talent
+entryPoint: index.js
+tags:
+  - executor
+  - codebolt
+author: codebolt

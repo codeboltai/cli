@@ -28,6 +28,8 @@ const { publishSkill } = require('./actions/publishSkill');
 const { createactionblock } = require('./actions/createactionblock');
 const { publishActionBlock } = require('./actions/publishActionBlock');
 const { createcapability } = require('./actions/createcapability');
+const { createexecutor } = require('./actions/createexecutor');
+const { publishExecutor } = require('./actions/publishExecutor');
 const { publishCapability } = require('./actions/publishCapability');
 
 program.version('1.0.1');
@@ -234,6 +236,22 @@ program
   .description('Publish a Codebolt Capability to the registry')
   .action((folderPath) => {
     publishCapability(folderPath);
+  });
+
+program
+  .command('createexecutor')
+  .description('Create a new Codebolt Capability Executor')
+  .option('-n, --name <name>', 'name of the executor')
+  .option('--quick', 'create executor quickly with default settings')
+  .action((options) => {
+    createexecutor(options);
+  });
+
+program
+  .command('publishexecutor [folderPath]')
+  .description('Publish a Codebolt Capability Executor to the registry')
+  .action((folderPath) => {
+    publishExecutor(folderPath);
   });
 
 program.parse(process.argv);
